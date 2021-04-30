@@ -50,7 +50,10 @@ impl MemoryAccess for RAM {
 
 fn main() {
     let mut mem = RAM { memory: [0; 4096] };
-    mem.memory[0..4].copy_from_slice(&[0b0_001_0011, 0b1_100_0110, 0b0000_0001, 0xF8]); // XORI
+    // mem.memory[0..4].copy_from_slice(&[0b0_001_0011, 0b1_100_0110, 0b0000_0001, 0xF8]); // XORI
+    mem.memory[0..4].copy_from_slice(&[0b1_110_1111, 0b0000_0000, 0b000_0_0000, 0b0_0000000]); // JAL 0
     let mut rv32 = RV32I::new("", &mut mem);
-    rv32.single_step();
+    for _ in 1..130_000_000 {
+        rv32.single_step();
+    }
 }
