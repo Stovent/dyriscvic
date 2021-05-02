@@ -59,18 +59,18 @@ fn main() {
     let mut eei = ExecutionEnvironment {
         memory: [0; 4096],
     };
-    // eei.memory[0..4].copy_from_slice(&[0b0_001_0011, 0b1_100_0110, 0b0000_0001, 0xF8]); // XORI
-    eei.memory[0..4].copy_from_slice(&[0b1_110_1111, 0b0000_0000, 0b000_0_0000, 0b0_0000000]); // JAL 0
+    // eei.memory[0..4].copy_from_slice(&[0b0_0010011, 0b1_100_0110, 0b0000_0001, 0xF8]); // XORI
+    eei.memory[0..4].copy_from_slice(&[0b1_1101111, 0b0000_0000, 0b000_0_0000, 0b0_0000000]); // JAL 0
 
     let mut rv32i = RV32I {
         x: [0; 32],
         pc: 0,
-        inst: Instruction::new_empty(),
+        inst: Instruction::new_empty(0),
         ext: String::from(""),
         eei: &mut eei,
     };
 
-    for _ in 1..130_000_000 {
+    for _ in 0..130_000_000 {
         rv32i.single_step();
     }
 }

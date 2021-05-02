@@ -56,41 +56,30 @@ enum ISA {
 }
 
 impl<'a> RV32I<'a> {
-    /// Create a new context of RV32I.
-    /// {extensions} is a string containing the capital letters of RISC-V standard extensions
-    pub fn new(extensions: &str, eei: &'a mut dyn ExecutionEnvironmentInterface) -> Self {
-        Self {
-            x: [0; 32],
-            pc: 0,
-            inst: Instruction::new_empty(),
-            ext: String::from(extensions),
-            eei,
-        }
-    }
-
     pub fn single_step(&mut self) {
-        let opcode = self.eei.get32le(self.pc as u64);
+        let pc = self.pc;
+        let opcode = self.eei.get32le(pc as u64);
         let inst_size = get_instruction_length(opcode as u16);
-        self.pc += inst_size as u32;
+        self.pc += 4;
         match inst_size {
 //            2 => if self.ext.contains('C'),
             4 => {
                 let inst = RV32I::get_instruction_from_opcode(opcode);
-                self.inst = RV32I::FORMAT[inst as usize](opcode);
+                self.inst = RV32I::FORMAT[inst as usize](pc, opcode);
 
                 #[cfg(debug_assertions)]
                 RV32I::DISASSEMBLE[inst as usize](self.inst);
 
                 RV32I::EXECUTE[inst as usize](self);
             },
-            _ => println!("Unknown opcode {:#X} at {:#x}", opcode, self.pc),
+            _ => println!("Unknown opcode {:#X} at {:#x}", opcode, self.pc - 4),
         };
     }
 }
 
 // Decoder
 impl<'a> RV32I<'a> {
-    const FORMAT: [fn(u32) -> Instruction; 41] = [
+    const FORMAT: [fn(u32, u32) -> Instruction; 41] = [
         decode_type_fail, decode_type_r, decode_type_i, decode_type_r, decode_type_i,     decode_type_u,     decode_type_b, decode_type_b,
         decode_type_b,    decode_type_b, decode_type_b, decode_type_b, decode_type_empty, decode_type_empty, decode_type_i, decode_type_j,
         decode_type_i,    decode_type_i, decode_type_i, decode_type_i, decode_type_i,     decode_type_u,     decode_type_i, decode_type_r,
@@ -155,18 +144,23 @@ impl<'a> RV32I<'a> {
     pub fn UNKNOWN(&mut self) {}
 
     pub fn ADD(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] + self.x[self.inst.rs2];
     }
 
     pub fn ADDI(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] + self.inst.imm;
     }
 
     pub fn AND(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] & self.x[self.inst.rs2];
     }
 
     pub fn ANDI(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] & self.inst.imm;
     }
 
     pub fn AUIPC(&mut self) {
+        self.x[self.inst.rd] = self.inst.pc as i32 + self.inst.imm;
     }
 
     pub fn BEQ(&mut self) {
@@ -197,8 +191,8 @@ impl<'a> RV32I<'a> {
     }
 
     pub fn JAL(&mut self) {
-        self.x[self.inst.rd as usize] = self.pc as i32;
-        self.pc = (self.pc as i32 + self.inst.imm - 4) as u32;
+        self.x[self.inst.rd] = self.inst.pc as i32 + 4;
+        self.pc = (self.inst.pc as i32 + self.inst.imm) as u32;
     }
 
     pub fn JALR(&mut self) {
@@ -206,7 +200,7 @@ impl<'a> RV32I<'a> {
 
     pub fn LB(&mut self) {
         // if rd == 0, throw exception
-        self.x[self.inst.rd as usize] = self.eei.get8((self.x[self.inst.rs1 as usize] + self.inst.imm) as u64) as i8 as i32;
+        self.x[self.inst.rd] = self.eei.get8((self.x[self.inst.rs1] + self.inst.imm) as u64) as i8 as i32;
     }
 
     pub fn LBU(&mut self) {
@@ -219,15 +213,18 @@ impl<'a> RV32I<'a> {
     }
 
     pub fn LUI(&mut self) {
+        self.x[self.inst.rd] = self.inst.imm;
     }
 
     pub fn LW(&mut self) {
     }
 
     pub fn OR(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] | self.x[self.inst.rs2];
     }
 
     pub fn ORI(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] | self.inst.imm;
     }
 
     pub fn SB(&mut self) {
@@ -237,45 +234,58 @@ impl<'a> RV32I<'a> {
     }
 
     pub fn SLL(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] << (self.x[self.inst.rs2] & 0x1F);
     }
 
     pub fn SLLI(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] << (self.inst.imm & 0x1F);
     }
 
     pub fn SLT(&mut self) {
+        self.x[self.inst.rd] = (self.x[self.inst.rs1] < self.x[self.inst.rs2]) as i32;
     }
 
     pub fn SLTI(&mut self) {
+        self.x[self.inst.rd] = (self.x[self.inst.rs1] < self.inst.imm) as i32;
     }
 
     pub fn SLTIU(&mut self) {
+        self.x[self.inst.rd] = ((self.x[self.inst.rs1] as u32) < (self.inst.imm as u32)) as i32;
     }
 
     pub fn SLTU(&mut self) {
+        self.x[self.inst.rd] = ((self.x[self.inst.rs1] as u32) < self.x[self.inst.rs2] as u32) as i32;
     }
 
     pub fn SRA(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] >> (self.x[self.inst.rs2] & 0x1F);
     }
 
     pub fn SRAI(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] >> (self.inst.imm & 0x1F);
     }
 
     pub fn SRL(&mut self) {
+        self.x[self.inst.rd] = ((self.x[self.inst.rs1] as u32) >> (self.x[self.inst.rs2] as u32 & 0x1F)) as i32;
     }
 
     pub fn SRLI(&mut self) {
+        self.x[self.inst.rd] = (self.x[self.inst.rs1] as u32 >> (self.inst.imm as u32 & 0x1F)) as i32;
     }
 
     pub fn SUB(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] - self.x[self.inst.rs2];
     }
 
     pub fn SW(&mut self) {
     }
 
     pub fn XOR(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] ^ self.x[self.inst.rs2];
     }
 
     pub fn XORI(&mut self) {
+        self.x[self.inst.rd] = self.x[self.inst.rs1] ^ self.inst.imm;
     }
 }
 
