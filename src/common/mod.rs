@@ -1,5 +1,3 @@
-pub mod memory;
-
 /// Returns the width of the instruction word in bytes, 24 if greater than 192 bits.
 pub fn get_instruction_length(inst: u16) -> u16 {
     if (inst & 0b11) != 0b11 {

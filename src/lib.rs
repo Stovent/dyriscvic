@@ -2,4 +2,5 @@
 #![allow(overflowing_literals)]
 
 pub mod common;
+pub mod public;
 pub mod rv32i;

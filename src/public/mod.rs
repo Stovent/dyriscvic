@@ -11,3 +11,7 @@ pub trait MemoryAccess {
     fn set32(&mut self, addr: u64, data: u32);
     fn set32le(&mut self, addr: u64, data: u32);
 }
+
+pub trait ExecutionEnvironmentInterface : MemoryAccess {
+    fn trap(&mut self);
+}

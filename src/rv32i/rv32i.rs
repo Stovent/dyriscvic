@@ -1,13 +1,13 @@
 use crate::common::*;
-use crate::common::memory::MemoryAccess;
+use crate::public::ExecutionEnvironmentInterface;
 
 pub struct RV32I<'a> {
-    x: [i32; 32],
-    pc: u32,
+    pub x: [i32; 32],
+    pub pc: u32,
 
-    inst: Instruction,
-    ext: String,
-    memory: &'a mut dyn MemoryAccess,
+    pub inst: Instruction,
+    pub ext: String,
+    pub eei: &'a mut dyn ExecutionEnvironmentInterface,
 }
 
 #[derive(Clone, Copy)]
@@ -58,18 +58,18 @@ enum ISA {
 impl<'a> RV32I<'a> {
     /// Create a new context of RV32I.
     /// {extensions} is a string containing the capital letters of RISC-V standard extensions
-    pub fn new(extensions: &str, memory: &'a mut dyn MemoryAccess) -> Self {
+    pub fn new(extensions: &str, eei: &'a mut dyn ExecutionEnvironmentInterface) -> Self {
         Self {
             x: [0; 32],
             pc: 0,
             inst: Instruction::new_empty(),
             ext: String::from(extensions),
-            memory,
+            eei,
         }
     }
 
     pub fn single_step(&mut self) {
-        let opcode = self.memory.get32le(self.pc as u64);
+        let opcode = self.eei.get32le(self.pc as u64);
         let inst_size = get_instruction_length(opcode as u16);
         self.pc += inst_size as u32;
         match inst_size {
@@ -206,7 +206,7 @@ impl<'a> RV32I<'a> {
 
     pub fn LB(&mut self) {
         // if rd == 0, throw exception
-        self.x[self.inst.rd as usize] = self.memory.get8((self.x[self.inst.rs1 as usize] + self.inst.imm) as u64) as i8 as i32;
+        self.x[self.inst.rd as usize] = self.eei.get8((self.x[self.inst.rs1 as usize] + self.inst.imm) as u64) as i8 as i32;
     }
 
     pub fn LBU(&mut self) {

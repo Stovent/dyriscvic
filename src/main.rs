@@ -1,10 +1,13 @@
-use dyriscvic::{common::memory::MemoryAccess, rv32i::RV32I};
+use dyriscvic::common::Instruction;
+use dyriscvic::public::ExecutionEnvironmentInterface;
+use dyriscvic::public::MemoryAccess;
+use dyriscvic::rv32i::RV32I;
 
-struct RAM {
+struct ExecutionEnvironment {
     pub memory: [u8; 4096],
 }
 
-impl MemoryAccess for RAM {
+impl MemoryAccess for ExecutionEnvironment {
     fn get8(&mut self, addr: u64) -> u8 {
         return self.memory[addr as usize];
     }
@@ -48,12 +51,26 @@ impl MemoryAccess for RAM {
     }
 }
 
+impl ExecutionEnvironmentInterface for ExecutionEnvironment {
+    fn trap(&mut self) {}
+}
+
 fn main() {
-    let mut mem = RAM { memory: [0; 4096] };
-    // mem.memory[0..4].copy_from_slice(&[0b0_001_0011, 0b1_100_0110, 0b0000_0001, 0xF8]); // XORI
-    mem.memory[0..4].copy_from_slice(&[0b1_110_1111, 0b0000_0000, 0b000_0_0000, 0b0_0000000]); // JAL 0
-    let mut rv32 = RV32I::new("", &mut mem);
+    let mut eei = ExecutionEnvironment {
+        memory: [0; 4096],
+    };
+    // eei.memory[0..4].copy_from_slice(&[0b0_001_0011, 0b1_100_0110, 0b0000_0001, 0xF8]); // XORI
+    eei.memory[0..4].copy_from_slice(&[0b1_110_1111, 0b0000_0000, 0b000_0_0000, 0b0_0000000]); // JAL 0
+
+    let mut rv32i = RV32I {
+        x: [0; 32],
+        pc: 0,
+        inst: Instruction::new_empty(),
+        ext: String::from(""),
+        eei: &mut eei,
+    };
+
     for _ in 1..130_000_000 {
-        rv32.single_step();
+        rv32i.single_step();
     }
 }
