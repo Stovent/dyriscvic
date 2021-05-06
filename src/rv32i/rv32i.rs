@@ -144,23 +144,33 @@ impl<'a> RV32I<'a> {
     pub fn UNKNOWN(&mut self) {}
 
     pub fn ADD(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] + self.x[self.inst.rs2 as usize];
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] + self.x[self.inst.rs2 as usize];
+        }
     }
 
     pub fn ADDI(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] + self.inst.imm;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] + self.inst.imm;
+        }
     }
 
     pub fn AND(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] & self.x[self.inst.rs2 as usize];
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] & self.x[self.inst.rs2 as usize];
+        }
     }
 
     pub fn ANDI(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] & self.inst.imm;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] & self.inst.imm;
+        }
     }
 
     pub fn AUIPC(&mut self) {
-        self.x[self.inst.rd as usize] = self.inst.pc as i32 + self.inst.imm;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.inst.pc as i32 + self.inst.imm;
+        }
     }
 
     pub fn BEQ(&mut self) {
@@ -191,16 +201,24 @@ impl<'a> RV32I<'a> {
     }
 
     pub fn JAL(&mut self) {
-        self.x[self.inst.rd as usize] = self.inst.pc as i32 + 4;
         self.pc = (self.inst.pc as i32 + self.inst.imm) as u32;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.inst.pc as i32 + 4;
+        }
     }
 
     pub fn JALR(&mut self) {
+        self.pc = (self.x[self.inst.rs1 as usize] + self.inst.imm) as u32 & 0xFFFF_FFFE;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.inst.pc as i32 + 4;
+        }
     }
 
     pub fn LB(&mut self) {
         // if rd == 0, throw exception
-        self.x[self.inst.rd as usize] = self.eei.get8((self.x[self.inst.rs1 as usize] + self.inst.imm) as u64) as i8 as i32;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.eei.get8((self.x[self.inst.rs1 as usize] + self.inst.imm) as u64) as i8 as i32;
+        }
     }
 
     pub fn LBU(&mut self) {
@@ -213,18 +231,24 @@ impl<'a> RV32I<'a> {
     }
 
     pub fn LUI(&mut self) {
-        self.x[self.inst.rd as usize] = self.inst.imm;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.inst.imm;
+        }
     }
 
     pub fn LW(&mut self) {
     }
 
     pub fn OR(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] | self.x[self.inst.rs2 as usize];
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] | self.x[self.inst.rs2 as usize];
+        }
     }
 
     pub fn ORI(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] | self.inst.imm;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] | self.inst.imm;
+        }
     }
 
     pub fn SB(&mut self) {
@@ -234,58 +258,84 @@ impl<'a> RV32I<'a> {
     }
 
     pub fn SLL(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.x[self.inst.rs2 as usize] & 0x1F);
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.x[self.inst.rs2 as usize] & 0x1F);
+        }
     }
 
     pub fn SLLI(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.inst.imm & 0x1F);
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.inst.imm & 0x1F);
+        }
     }
 
     pub fn SLT(&mut self) {
-        self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize]) as i32;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize]) as i32;
+        }
     }
 
     pub fn SLTI(&mut self) {
-        self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.inst.imm) as i32;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.inst.imm) as i32;
+        }
     }
 
     pub fn SLTIU(&mut self) {
-        self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as u32) < (self.inst.imm as u32)) as i32;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as u32) < (self.inst.imm as u32)) as i32;
+        }
     }
 
     pub fn SLTU(&mut self) {
-        self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as u32) < self.x[self.inst.rs2 as usize] as u32) as i32;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as u32) < self.x[self.inst.rs2 as usize] as u32) as i32;
+        }
     }
 
     pub fn SRA(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.x[self.inst.rs2 as usize] & 0x1F);
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.x[self.inst.rs2 as usize] & 0x1F);
+        }
     }
 
     pub fn SRAI(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.inst.imm & 0x1F);
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.inst.imm & 0x1F);
+        }
     }
 
     pub fn SRL(&mut self) {
-        self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as u32) >> (self.x[self.inst.rs2 as usize] as u32 & 0x1F)) as i32;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as u32) >> (self.x[self.inst.rs2 as usize] as u32 & 0x1F)) as i32;
+        }
     }
 
     pub fn SRLI(&mut self) {
-        self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u32 >> (self.inst.imm as u32 & 0x1F)) as i32;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u32 >> (self.inst.imm as u32 & 0x1F)) as i32;
+        }
     }
 
     pub fn SUB(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] - self.x[self.inst.rs2 as usize];
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] - self.x[self.inst.rs2 as usize];
+        }
     }
 
     pub fn SW(&mut self) {
     }
 
     pub fn XOR(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] ^ self.x[self.inst.rs2 as usize];
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] ^ self.x[self.inst.rs2 as usize];
+        }
     }
 
     pub fn XORI(&mut self) {
-        self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] ^ self.inst.imm;
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] ^ self.inst.imm;
+        }
     }
 }
 
