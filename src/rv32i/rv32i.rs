@@ -174,21 +174,39 @@ impl<'a> RV32I<'a> {
     }
 
     pub fn BEQ(&mut self) {
+        if self.x[self.inst.rs1 as usize] == self.x[self.inst.rs2 as usize] {
+            self.pc = (self.inst.pc as i32 + self.inst.imm) as u32;
+        }
     }
 
     pub fn BGE(&mut self) {
+        if self.x[self.inst.rs1 as usize] >= self.x[self.inst.rs2 as usize] {
+            self.pc = (self.inst.pc as i32 + self.inst.imm) as u32;
+        }
     }
 
     pub fn BGEU(&mut self) {
+        if (self.x[self.inst.rs1 as usize] as u32) >= (self.x[self.inst.rs2 as usize] as u32) {
+            self.pc = (self.inst.pc as i32 + self.inst.imm) as u32;
+        }
     }
 
     pub fn BLT(&mut self) {
+        if self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize] {
+            self.pc = (self.inst.pc as i32 + self.inst.imm) as u32;
+        }
     }
 
     pub fn BLTU(&mut self) {
+        if (self.x[self.inst.rs1 as usize] as u32) < (self.x[self.inst.rs2 as usize] as u32) {
+            self.pc = (self.inst.pc as i32 + self.inst.imm) as u32;
+        }
     }
 
     pub fn BNE(&mut self) {
+        if self.x[self.inst.rs1 as usize] != self.x[self.inst.rs2 as usize] {
+            self.pc = (self.inst.pc as i32 + self.inst.imm) as u32;
+        }
     }
 
     pub fn EBREAK(&mut self) {
