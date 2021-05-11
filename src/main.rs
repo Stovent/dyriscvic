@@ -1,4 +1,5 @@
 use dyriscvic::common::Instruction;
+use dyriscvic::common::isa::ISA;
 use dyriscvic::public::ExecutionEnvironmentInterface;
 use dyriscvic::public::MemoryAccess;
 use dyriscvic::rv32i::RV32I;
@@ -65,7 +66,7 @@ fn main() {
     let mut rv32i = RV32I {
         x: [0; 32],
         pc: 0,
-        inst: Instruction::new_empty(0),
+        inst: Instruction::new_empty(ISA::UNKNOWN, 0),
         ext: String::from(""),
         eei: &mut eei,
     };
