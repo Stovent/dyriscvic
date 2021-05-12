@@ -1,4 +1,4 @@
-use dyriscvic::common::Instruction;
+use dyriscvic::common::Instruction32;
 use dyriscvic::common::isa::ISA;
 use dyriscvic::public::ExecutionEnvironmentInterface;
 use dyriscvic::public::MemoryAccess;
@@ -61,12 +61,14 @@ fn main() {
         memory: [0; 4096],
     };
     // eei.memory[0..4].copy_from_slice(&[0b0_0010011, 0b1_100_0110, 0b0000_0001, 0xF8]); // XORI
-    eei.memory[0..4].copy_from_slice(&[0b1_1101111, 0b0000_0000, 0b000_0_0000, 0b0_0000000]); // JAL 0
+    // eei.memory[4..8].copy_from_slice(&[0b1_1101111, 0b0000_0000, 0b000_0_0000, 0b0_0000000]); // JAL 0
+    eei.memory[0..4].copy_from_slice(&[0b1_0010011, 0b0_111_0000, 0b000_0_0000, 0b0_0000000]); // ANDI 0
+    eei.memory[4..8].copy_from_slice(&[0b1_1101111, 0b1111_0000, 0b110_1_1111, 0b1_1111111]); // JAL -4
 
     let mut rv32i = RV32I {
         x: [0; 32],
         pc: 0,
-        inst: Instruction::new_empty(ISA::UNKNOWN, 0),
+        inst: Instruction32::new_empty(ISA::UNKNOWN, 0),
         ext: String::from(""),
         eei: &mut eei,
     };

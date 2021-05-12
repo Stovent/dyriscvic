@@ -5,7 +5,7 @@ pub struct RV32I<'a> {
     pub x: [i32; 32],
     pub pc: u32,
 
-    pub inst: Instruction<u32>,
+    pub inst: Instruction32,
     pub ext: String,
     pub eei: &'a mut dyn ExecutionEnvironmentInterface,
 }
@@ -19,7 +19,7 @@ impl<'a> RV32I<'a> {
         match inst_size {
 //            2 => if self.ext.contains('C'),
             4 => {
-                self.inst = get_instruction_from_opcode(pc, opcode);
+                self.inst = get_instruction32_from_opcode(pc, opcode);
 
                 #[cfg(debug_assertions)]
                 RV32I::DISASSEMBLE[self.inst.inst as usize](self.inst);
@@ -260,7 +260,7 @@ impl<'a> RV32I<'a> {
 // Disassembler
 #[cfg(debug_assertions)]
 impl<'a> RV32I<'a> {
-    const DISASSEMBLE: [fn(Instruction<u32>); 41] = [
+    const DISASSEMBLE: [fn(Instruction32); 41] = [
         RV32I::disassemble_UNKNOWN, RV32I::disassemble_ADD, RV32I::disassemble_ADDI, RV32I::disassemble_AND,  RV32I::disassemble_ANDI,   RV32I::disassemble_AUIPC, RV32I::disassemble_BEQ,   RV32I::disassemble_BGE,
         RV32I::disassemble_BGEU,    RV32I::disassemble_BLT, RV32I::disassemble_BLTU, RV32I::disassemble_BNE,  RV32I::disassemble_EBREAK, RV32I::disassemble_ECALL, RV32I::disassemble_FENCE, RV32I::disassemble_JAL,
         RV32I::disassemble_JALR,    RV32I::disassemble_LB,  RV32I::disassemble_LBU,  RV32I::disassemble_LH,   RV32I::disassemble_LHU,    RV32I::disassemble_LUI,   RV32I::disassemble_LW,    RV32I::disassemble_OR,
@@ -268,167 +268,167 @@ impl<'a> RV32I<'a> {
         RV32I::disassemble_SLTU,    RV32I::disassemble_SRA, RV32I::disassemble_SRAI, RV32I::disassemble_SRL,  RV32I::disassemble_SRLI,   RV32I::disassemble_SUB,   RV32I::disassemble_SW,    RV32I::disassemble_XOR,   RV32I::disassemble_XORI,
     ];
 
-    pub fn disassemble_UNKNOWN(inst: Instruction<u32>) {
+    pub fn disassemble_UNKNOWN(inst: Instruction32) {
         println!("Error: unknown instruction {:?}", inst);
     }
 
-    pub fn disassemble_ADD(inst: Instruction<u32>) {
+    pub fn disassemble_ADD(inst: Instruction32) {
         println!("Instruction: ADD {:?}", inst);
     }
 
-    pub fn disassemble_ADDI(inst: Instruction<u32>) {
+    pub fn disassemble_ADDI(inst: Instruction32) {
         println!("Instruction: ADDI {:?}", inst);
     }
 
-    pub fn disassemble_AND(inst: Instruction<u32>) {
+    pub fn disassemble_AND(inst: Instruction32) {
         println!("Instruction: AND {:?}", inst);
     }
 
-    pub fn disassemble_ANDI(inst: Instruction<u32>) {
+    pub fn disassemble_ANDI(inst: Instruction32) {
         println!("Instruction: ANDI {:?}", inst);
     }
 
-    pub fn disassemble_AUIPC(inst: Instruction<u32>) {
+    pub fn disassemble_AUIPC(inst: Instruction32) {
         println!("Instruction: AUIPC {:?}", inst);
     }
 
-    pub fn disassemble_BEQ(inst: Instruction<u32>) {
+    pub fn disassemble_BEQ(inst: Instruction32) {
         println!("Instruction: BEQ {:?}", inst);
     }
 
-    pub fn disassemble_BGE(inst: Instruction<u32>) {
+    pub fn disassemble_BGE(inst: Instruction32) {
         println!("Instruction: BGE {:?}", inst);
     }
 
-    pub fn disassemble_BGEU(inst: Instruction<u32>) {
+    pub fn disassemble_BGEU(inst: Instruction32) {
         println!("Instruction: BGEU {:?}", inst);
     }
 
-    pub fn disassemble_BLT(inst: Instruction<u32>) {
+    pub fn disassemble_BLT(inst: Instruction32) {
         println!("Instruction: BLT {:?}", inst);
     }
 
-    pub fn disassemble_BLTU(inst: Instruction<u32>) {
+    pub fn disassemble_BLTU(inst: Instruction32) {
         println!("Instruction: BLTU {:?}", inst);
     }
 
-    pub fn disassemble_BNE(inst: Instruction<u32>) {
+    pub fn disassemble_BNE(inst: Instruction32) {
         println!("Instruction: BNE {:?}", inst);
     }
 
-    pub fn disassemble_EBREAK(inst: Instruction<u32>) {
+    pub fn disassemble_EBREAK(inst: Instruction32) {
         println!("Instruction: EBREAK {:?}", inst);
     }
 
-    pub fn disassemble_ECALL(inst: Instruction<u32>) {
+    pub fn disassemble_ECALL(inst: Instruction32) {
         println!("Instruction: ECALL {:?}", inst);
     }
 
-    pub fn disassemble_FENCE(inst: Instruction<u32>) {
+    pub fn disassemble_FENCE(inst: Instruction32) {
         println!("Instruction: FENCE {:?}", inst);
     }
 
-    pub fn disassemble_JAL(inst: Instruction<u32>) {
+    pub fn disassemble_JAL(inst: Instruction32) {
         println!("Instruction: JAL {:?}", inst);
     }
 
-    pub fn disassemble_JALR(inst: Instruction<u32>) {
+    pub fn disassemble_JALR(inst: Instruction32) {
         println!("Instruction: JALR {:?}", inst);
     }
 
-    pub fn disassemble_LB(inst: Instruction<u32>) {
+    pub fn disassemble_LB(inst: Instruction32) {
         println!("Instruction: LB {:?}", inst);
     }
 
-    pub fn disassemble_LBU(inst: Instruction<u32>) {
+    pub fn disassemble_LBU(inst: Instruction32) {
         println!("Instruction: LBU {:?}", inst);
     }
 
-    pub fn disassemble_LH(inst: Instruction<u32>) {
+    pub fn disassemble_LH(inst: Instruction32) {
         println!("Instruction: LH {:?}", inst);
     }
 
-    pub fn disassemble_LHU(inst: Instruction<u32>) {
+    pub fn disassemble_LHU(inst: Instruction32) {
         println!("Instruction: LHU {:?}", inst);
     }
 
-    pub fn disassemble_LUI(inst: Instruction<u32>) {
+    pub fn disassemble_LUI(inst: Instruction32) {
         println!("Instruction: LUI {:?}", inst);
     }
 
-    pub fn disassemble_LW(inst: Instruction<u32>) {
+    pub fn disassemble_LW(inst: Instruction32) {
         println!("Instruction: LW {:?}", inst);
     }
 
-    pub fn disassemble_OR(inst: Instruction<u32>) {
+    pub fn disassemble_OR(inst: Instruction32) {
         println!("Instruction: OR {:?}", inst);
     }
 
-    pub fn disassemble_ORI(inst: Instruction<u32>) {
+    pub fn disassemble_ORI(inst: Instruction32) {
         println!("Instruction: ORI {:?}", inst);
     }
 
-    pub fn disassemble_SB(inst: Instruction<u32>) {
+    pub fn disassemble_SB(inst: Instruction32) {
         println!("Instruction: SB {:?}", inst);
     }
 
-    pub fn disassemble_SH(inst: Instruction<u32>) {
+    pub fn disassemble_SH(inst: Instruction32) {
         println!("Instruction: SH {:?}", inst);
     }
 
-    pub fn disassemble_SLL(inst: Instruction<u32>) {
+    pub fn disassemble_SLL(inst: Instruction32) {
         println!("Instruction: SLL {:?}", inst);
     }
 
-    pub fn disassemble_SLLI(inst: Instruction<u32>) {
+    pub fn disassemble_SLLI(inst: Instruction32) {
         println!("Instruction: SLLI {:?}", inst);
     }
 
-    pub fn disassemble_SLT(inst: Instruction<u32>) {
+    pub fn disassemble_SLT(inst: Instruction32) {
         println!("Instruction: SLT {:?}", inst);
     }
 
-    pub fn disassemble_SLTI(inst: Instruction<u32>) {
+    pub fn disassemble_SLTI(inst: Instruction32) {
         println!("Instruction: SLTI {:?}", inst);
     }
 
-    pub fn disassemble_SLTIU(inst: Instruction<u32>) {
+    pub fn disassemble_SLTIU(inst: Instruction32) {
         println!("Instruction: SLTIU {:?}", inst);
     }
 
-    pub fn disassemble_SLTU(inst: Instruction<u32>) {
+    pub fn disassemble_SLTU(inst: Instruction32) {
         println!("Instruction: SLTU {:?}", inst);
     }
 
-    pub fn disassemble_SRA(inst: Instruction<u32>) {
+    pub fn disassemble_SRA(inst: Instruction32) {
         println!("Instruction: SRA {:?}", inst);
     }
 
-    pub fn disassemble_SRAI(inst: Instruction<u32>) {
+    pub fn disassemble_SRAI(inst: Instruction32) {
         println!("Instruction: SRAI {:?}", inst);
     }
 
-    pub fn disassemble_SRL(inst: Instruction<u32>) {
+    pub fn disassemble_SRL(inst: Instruction32) {
         println!("Instruction: SRL {:?}", inst);
     }
 
-    pub fn disassemble_SRLI(inst: Instruction<u32>) {
+    pub fn disassemble_SRLI(inst: Instruction32) {
         println!("Instruction: SRLI {:?}", inst);
     }
 
-    pub fn disassemble_SUB(inst: Instruction<u32>) {
+    pub fn disassemble_SUB(inst: Instruction32) {
         println!("Instruction: SUB {:?}", inst);
     }
 
-    pub fn disassemble_SW(inst: Instruction<u32>) {
+    pub fn disassemble_SW(inst: Instruction32) {
         println!("Instruction: SW {:?}", inst);
     }
 
-    pub fn disassemble_XOR(inst: Instruction<u32>) {
+    pub fn disassemble_XOR(inst: Instruction32) {
         println!("Instruction: XOR {:?}", inst);
     }
 
-    pub fn disassemble_XORI(inst: Instruction<u32>) {
+    pub fn disassemble_XORI(inst: Instruction32) {
         println!("Instruction: XORI {:?}", inst);
     }
 }
