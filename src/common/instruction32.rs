@@ -49,7 +49,7 @@ impl Instruction32 {
     pub fn decode_type_b(inst: ISA, pc: u32, opcode: u32) -> Instruction32 {
         let rs1 = (opcode >> 15 & 0b1_1111) as u8;
         let rs2 = (opcode >> 20 & 0b1_1111) as u8;
-        let imm = opcode as i32 >> 19 & 0x1000 | (opcode as i32) << 4 & 0x0800 | opcode as i32 >> 20 & 0x07E0 | opcode as i32 >> 7 & 0x001E;
+        let imm = opcode as i32 >> 19 & 0xFFFF_F000 | (opcode as i32) << 4 & 0x0800 | opcode as i32 >> 20 & 0x07E0 | opcode as i32 >> 7 & 0x001E;
         Instruction32 { inst, pc, rd: 0, rs1, rs2, imm}
     }
 
