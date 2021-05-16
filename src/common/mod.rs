@@ -2,7 +2,7 @@ pub mod instruction;
 pub mod isa;
 pub mod types;
 
-pub use instruction::{Instruction32, Instruction64};
+pub use instruction::{Instruction, Instruction32, Instruction64};
 
 /// Returns the width of the instruction word in bytes, 24 if greater than 192 bits.
 pub fn get_instruction_length(inst: u16) -> u16 {

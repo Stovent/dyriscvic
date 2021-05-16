@@ -1,4 +1,4 @@
-use crate::common::Instruction32;
+use crate::common::{types::*, Instruction, Instruction32};
 
 #[derive(Clone, Copy, Debug)]
 pub enum ISA {
@@ -44,15 +44,24 @@ pub enum ISA {
     XOR,
     XORI,
 }
-// TODO: RV64I
-const FORMAT32: [fn(ISA, u32, u32) -> Instruction32; 41] = [
-    Instruction32::decode_type_fail, Instruction32::decode_type_r, Instruction32::decode_type_i, Instruction32::decode_type_r, Instruction32::decode_type_i, Instruction32::decode_type_u, Instruction32::decode_type_b, Instruction32::decode_type_b,
-    Instruction32::decode_type_b,    Instruction32::decode_type_b, Instruction32::decode_type_b, Instruction32::decode_type_b, Instruction32::decode_type_empty, Instruction32::decode_type_empty, Instruction32::decode_type_i, Instruction32::decode_type_j,
-    Instruction32::decode_type_i,    Instruction32::decode_type_i, Instruction32::decode_type_i, Instruction32::decode_type_i, Instruction32::decode_type_i, Instruction32::decode_type_u, Instruction32::decode_type_i, Instruction32::decode_type_r,
-    Instruction32::decode_type_i,    Instruction32::decode_type_s, Instruction32::decode_type_s, Instruction32::decode_type_r, Instruction32::decode_type_r, Instruction32::decode_type_r, Instruction32::decode_type_i, Instruction32::decode_type_i,
-    Instruction32::decode_type_r,    Instruction32::decode_type_r, Instruction32::decode_type_r, Instruction32::decode_type_r, Instruction32::decode_type_r, Instruction32::decode_type_r, Instruction32::decode_type_s, Instruction32::decode_type_r,
-    Instruction32::decode_type_i,
-];
+
+impl<PC: Unsigned, IMM: Signed> Format<PC, IMM> for ISA {}
+
+pub fn get_instruction32_from_opcode(pc: u32, opcode: u32) -> Instruction32 {
+    let isa = get_isa(opcode);
+    ISA::FORMAT[isa as usize](isa, pc, opcode)
+}
+
+trait Format<PC: Unsigned, IMM: Signed> {
+    const FORMAT: [fn(ISA, PC, u32) -> Instruction<PC, IMM>; 41] = [
+        Instruction::decode_type_fail, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_u, Instruction::decode_type_b, Instruction::decode_type_b,
+        Instruction::decode_type_b,    Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_empty, Instruction::decode_type_empty, Instruction::decode_type_i, Instruction::decode_type_j,
+        Instruction::decode_type_i,    Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_u, Instruction::decode_type_i, Instruction::decode_type_r,
+        Instruction::decode_type_i,    Instruction::decode_type_s, Instruction::decode_type_s, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_i,
+        Instruction::decode_type_r,    Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_s, Instruction::decode_type_r,
+        Instruction::decode_type_i,
+    ];
+}
 
 const ISA_ARITHMETIC: [ISA; 8] = [ISA::ADD, ISA::SLL, ISA::SLT, ISA::SLTU, ISA::XOR, ISA::SRL, ISA::OR, ISA::AND];
 const ISA_BRANCH: [ISA; 8] = [ISA::BEQ, ISA::BNE, ISA::UNKNOWN, ISA::UNKNOWN, ISA::BLT, ISA::BGE, ISA::BLTU, ISA::BGEU];
@@ -95,9 +104,4 @@ fn get_instruction_from_opcode_arithmetic(opcode: u32) -> ISA {
     } else {
         ISA_ARITHMETIC[opcode as usize >> 12 & 0b111]
     }
-}
-
-pub fn get_instruction32_from_opcode(pc: u32, opcode: u32) -> Instruction32 {
-    let isa = get_isa(opcode);
-    FORMAT32[isa as usize](isa, pc, opcode)
 }
