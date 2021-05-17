@@ -1,7 +1,5 @@
-use dyriscvic::common::Instruction32;
-use dyriscvic::common::isa::ISA;
-use dyriscvic::public::ExecutionEnvironmentInterface;
-use dyriscvic::public::MemoryAccess;
+use dyriscvic::common::{Instruction32, isa::ISA};
+use dyriscvic::public::{ExecutionEnvironmentInterface, MemoryAccess};
 use dyriscvic::rv32i::RV32I;
 
 struct ExecutionEnvironment {

@@ -1,46 +1,41 @@
+pub trait Int = Copy + Sized;
+pub trait Signed = Int + From<i32> + AsUnsigned;
+pub trait Unsigned = Int + From<u32> + AsSigned;
 
-pub trait Signed: Copy + From<i32> + Sized + IntoUnsigned {}
-pub trait Unsigned: Copy + From<u32> + Sized + IntoSigned {}
-
-impl Signed for i32 {}
-impl Signed for i64 {}
-impl Unsigned for u32 {}
-impl Unsigned for u64 {}
-
-pub trait IntoSigned {
+pub trait AsSigned {
     type Signed;
-    fn into_s(&self) -> Self::Signed;
+    fn as_s(&self) -> Self::Signed;
 }
 
-impl IntoSigned for u32 {
+impl AsSigned for u32 {
     type Signed = i32;
-    fn into_s(&self) -> Self::Signed {
+    fn as_s(&self) -> Self::Signed {
         *self as i32
     }
 }
 
-impl IntoSigned for u64 {
+impl AsSigned for u64 {
     type Signed = i64;
-    fn into_s(&self) -> Self::Signed {
+    fn as_s(&self) -> Self::Signed {
         *self as i64
     }
 }
 
-pub trait IntoUnsigned {
+pub trait AsUnsigned {
     type Unsigned;
-    fn into_u(&self) -> Self::Unsigned;
+    fn as_u(&self) -> Self::Unsigned;
 }
 
-impl IntoUnsigned for i32 {
+impl AsUnsigned for i32 {
     type Unsigned = u32;
-    fn into_u(&self) -> Self::Unsigned {
+    fn as_u(&self) -> Self::Unsigned {
         *self as u32
     }
 }
 
-impl IntoUnsigned for i64 {
+impl AsUnsigned for i64 {
     type Unsigned = u64;
-    fn into_u(&self) -> Self::Unsigned {
+    fn as_u(&self) -> Self::Unsigned {
         *self as u64
     }
 }

@@ -1,4 +1,4 @@
-use crate::common::{types::*, Instruction, Instruction32};
+use crate::common::{Instruction, Instruction32, types::*};
 
 #[derive(Clone, Copy, Debug)]
 pub enum ISA {
