@@ -1,4 +1,4 @@
-use crate::common::{isa::*, types::*};
+use crate::common::{extensions::*, types::*};
 use crate::rvi::*;
 
 impl<'a, PC: Unsigned, IMM: Signed, const N: usize> DisassembleI<'a, PC, IMM, N> for RV32<'a, N> {

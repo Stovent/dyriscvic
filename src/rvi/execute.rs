@@ -1,4 +1,4 @@
-use crate::common::isa::*;
+use crate::common::extensions::*;
 use crate::rvi::*;
 
 impl<'a, const N: usize> I<'a, N> for RV32<'a, N> {

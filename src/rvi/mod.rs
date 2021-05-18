@@ -1,7 +1,7 @@
 pub mod disassemble;
 pub mod execute;
 
-use crate::common::{*, isa::*, types::*};
+use crate::common::{*, extensions::*, isa::*};
 use crate::public::ExecutionEnvironmentInterface;
 
 pub struct RVI<'a, PC, X, const N: usize> {
@@ -27,7 +27,7 @@ impl<'a> RV32I<'a> {
         match inst_size {
 //            2 => if self.ext.contains('C'),
             4 => {
-                self.inst = get_instruction32_from_opcode(pc, opcode);
+                self.inst = Instruction32::get_instruction_from_opcode(pc, opcode);
 
                 #[cfg(debug_assertions)]
                 RV32I::DISASSEMBLE[self.inst.inst as usize](self.inst);

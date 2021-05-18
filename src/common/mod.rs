@@ -1,3 +1,4 @@
+pub mod extensions;
 pub mod instruction;
 pub mod isa;
 pub mod types;
