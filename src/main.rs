@@ -1,6 +1,6 @@
-use dyriscvic::common::{Instruction32, isa::ISA};
+use dyriscvic::common::{Instruction32, isa::*};
 use dyriscvic::public::{ExecutionEnvironmentInterface, MemoryAccess};
-use dyriscvic::rv32i::RV32I;
+use dyriscvic::rvi::*;
 
 struct ExecutionEnvironment {
     pub memory: [u8; 4096],

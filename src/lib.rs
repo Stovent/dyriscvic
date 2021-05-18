@@ -4,4 +4,4 @@
 
 pub mod common;
 pub mod public;
-pub mod rv32i;
+pub mod rvi;

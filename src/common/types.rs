@@ -1,4 +1,4 @@
-pub trait Int = Copy + Sized;
+pub trait Int = Copy + Sized + std::fmt::Debug;
 pub trait Signed = Int + From<i32> + AsUnsigned;
 pub trait Unsigned = Int + From<u32> + AsSigned;
 
