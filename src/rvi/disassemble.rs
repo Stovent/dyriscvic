@@ -1,7 +1,7 @@
 use crate::common::{extensions::*, types::*};
 use crate::rvi::*;
 
-impl<'a, PC: Unsigned, IMM: Signed, const N: usize> DisassembleI<'a, PC, IMM, N> for RV32<'a, N> {
+impl<'a, PC: Unsigned, IMM: Signed, const N: usize> DisassembleI32<PC, IMM, N> for RV32<'a, N> {
     fn disassemble_UNKNOWN(inst: Instruction<PC, IMM>) {
         println!("Error: unknown instruction {:?}", inst);
     }

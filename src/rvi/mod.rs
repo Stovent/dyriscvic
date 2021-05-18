@@ -1,7 +1,7 @@
 pub mod disassemble;
 pub mod execute;
 
-use crate::common::{*, extensions::*, isa::*};
+use crate::common::{*, isa::*, types::*};
 use crate::public::ExecutionEnvironmentInterface;
 
 pub struct RVI<'a, PC, X, const N: usize> {
@@ -38,3 +38,6 @@ impl<'a> RV32I<'a> {
         };
     }
 }
+
+impl<'a, const N: usize> Execute<'a, N> for RV32<'a, N> {}
+impl<'a, PC: Unsigned, IMM: Signed, const N: usize> Disassemble<'a, PC, IMM, N> for RV32<'a, N> {}

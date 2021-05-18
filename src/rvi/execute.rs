@@ -1,7 +1,7 @@
 use crate::common::extensions::*;
 use crate::rvi::*;
 
-impl<'a, const N: usize> I<'a, N> for RV32<'a, N> {
+impl<'a, const N: usize> I32 for RV32<'a, N> {
     fn UNKNOWN(&mut self) {}
 
     fn ADD(&mut self) {
