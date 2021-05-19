@@ -5,18 +5,30 @@ use crate::common::{*, isa::*, types::*};
 use crate::public::ExecutionEnvironmentInterface;
 
 pub struct RVI<'a, PC, X, const N: usize> {
-    pub x: [X; N],
-    pub pc: PC,
+    x: [X; N],
+    pc: PC,
 
-    pub inst: Instruction<PC, X>,
+    inst: Instruction<PC, X>,
     pub ext: String,
-    pub eei: &'a mut dyn ExecutionEnvironmentInterface<PC>,
+    eei: &'a mut dyn ExecutionEnvironmentInterface<PC>,
 }
 
 pub type RV32<'a, const N: usize> = RVI<'a, u32, i32, N>;
 pub type RV32E<'a> = RV32<'a, 16>;
 pub type RV32I<'a> = RV32<'a, 32>;
 pub type RV64I<'a> = RVI<'a, u64, i64, 32>;
+
+impl<'a, PC: Unsigned, X: Signed, const N: usize> RVI<'a, PC, X, N> {
+    pub fn new(x: [X; N], pc: PC, ext: &str, eei: &'a mut dyn ExecutionEnvironmentInterface<PC>) -> Self {
+        Self {
+            x,
+            pc,
+            inst: Instruction::<PC, X>::new_empty(ISA::UNKNOWN, 0.into()),
+            ext: String::from(ext),
+            eei,
+        }
+    }
+}
 
 impl<'a> RV32I<'a> {
     pub fn single_step(&mut self) {
