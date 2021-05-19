@@ -1,7 +1,8 @@
 use std::ops::*;
 
-pub trait Int = Copy + Sized + std::fmt::Debug + 'static + Add<Output = Self>;
-pub trait Signed<U> = Int + From<i32> + AsUnsigned<Unsigned = U>;
+pub trait Int = Copy + Sized + std::fmt::Debug + 'static + Ord +
+    Add<Output = Self> + Sub<Output = Self> + BitAnd<Output = Self> + BitOr<Output = Self> + BitXor<Output = Self> + Shl<Output = Self> + Shr<Output = Self>;
+pub trait Signed<U> = Int + From<bool> + From<i8> + From<i16> + From<i32> + AsUnsigned<Unsigned = U>;
 pub trait Unsigned<S> = Int + From<u32> + AsSigned<Signed = S>;
 
 pub trait AsSigned {
