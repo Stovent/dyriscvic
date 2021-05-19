@@ -1,36 +1,43 @@
 pub mod disassemble;
 pub mod execute;
 
-use crate::common::{*, isa::*, types::*};
+use crate::common::{*, extensions::*, isa::*, types::*};
 use crate::public::ExecutionEnvironmentInterface;
 
-pub struct RVI<'a, PC, X, const N: usize> {
-    x: [X; N],
-    pc: PC,
+pub struct RVI<U: Unsigned<S>, S: Signed<U>, const N: usize> {
+    x: [S; N],
+    pc: U,
 
-    inst: Instruction<PC, X>,
+    inst: Instruction<U, S>,
     pub ext: String,
-    eei: &'a mut dyn ExecutionEnvironmentInterface<PC>,
+    eei: Box<dyn ExecutionEnvironmentInterface<U>>,
+    execute: [fn(&mut Self); 41],
+    disassemble: [fn(Instruction<U, S>); 41],
 }
 
-pub type RV32<'a, const N: usize> = RVI<'a, u32, i32, N>;
-pub type RV32E<'a> = RV32<'a, 16>;
-pub type RV32I<'a> = RV32<'a, 32>;
-pub type RV64I<'a> = RVI<'a, u64, i64, 32>;
+pub type RV32<const N: usize> = RVI<u32, i32, N>;
+pub type RV32E = RV32<16>;
+pub type RV32I = RV32<32>;
+pub type RV64I = RVI<u64, i64, 32>;
 
-impl<'a, PC: Unsigned, X: Signed, const N: usize> RVI<'a, PC, X, N> {
-    pub fn new(x: [X; N], pc: PC, ext: &str, eei: &'a mut dyn ExecutionEnvironmentInterface<PC>) -> Self {
-        Self {
+impl<U: Unsigned<S>, S: Signed<U>, const N: usize> RVI<U, S, N> {
+    pub fn new(x: [S; N], pc: U, ext: &str, eei: impl ExecutionEnvironmentInterface<U> + 'static) -> Self {
+        let mut core = Self {
             x,
             pc,
-            inst: Instruction::<PC, X>::new_empty(ISA::UNKNOWN, 0.into()),
+            inst: Instruction::<U, S>::new_empty(ISA::UNKNOWN, 0.into()),
             ext: String::from(ext),
-            eei,
-        }
+            eei: Box::new(eei),
+            execute: [RVI::UNKNOWN; 41],
+            disassemble: [RVI::<U, S, N>::disassemble_UNKNOWN; 41],
+        };
+        core.load_execute_i();
+        core.load_disassemble_i();
+        core
     }
 }
 
-impl<'a> RV32I<'a> {
+impl RV32I {
     pub fn single_step(&mut self) {
         let pc = self.pc;
         self.pc += 4;
@@ -42,14 +49,14 @@ impl<'a> RV32I<'a> {
                 self.inst = Instruction32::get_instruction_from_opcode(pc, opcode);
 
                 #[cfg(debug_assertions)]
-                RV32I::DISASSEMBLE[self.inst.inst as usize](self.inst);
+                self.disassemble[self.inst.inst as usize](self.inst);
 
-                RV32I::EXECUTE[self.inst.inst as usize](self);
+                self.execute[self.inst.inst as usize](self);
             },
-            _ => println!("Unknown opcode {:#X} at {:#x}", opcode, pc),
+            _ => println!("Unknown opcode {:#X} at {:#X}", opcode, pc),
         };
     }
 }
 
-impl<'a, const N: usize> Execute<'a, N> for RV32<'a, N> {}
-impl<'a, PC: Unsigned, IMM: Signed, const N: usize> Disassemble<'a, PC, IMM, N> for RV32<'a, N> {}
+impl<U: Unsigned<S>, S: Signed<U>, const N: usize> Execute<U, S, N> for RVI<U, S, N> {}
+impl<U: Unsigned<S>, S: Signed<U>, const N: usize> Disassemble<U, S, N> for RVI<U, S, N> {}

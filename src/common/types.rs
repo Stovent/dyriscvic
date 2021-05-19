@@ -1,6 +1,8 @@
-pub trait Int = Copy + Sized + std::fmt::Debug;
-pub trait Signed = Int + From<i32> + AsUnsigned;
-pub trait Unsigned = Int + From<u32> + AsSigned;
+use std::ops::*;
+
+pub trait Int = Copy + Sized + std::fmt::Debug + 'static + Add<Output = Self>;
+pub trait Signed<U> = Int + From<i32> + AsUnsigned<Unsigned = U>;
+pub trait Unsigned<S> = Int + From<u32> + AsSigned<Signed = S>;
 
 pub trait AsSigned {
     type Signed;

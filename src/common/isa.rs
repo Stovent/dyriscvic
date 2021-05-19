@@ -72,8 +72,8 @@ fn get_instruction_from_opcode_arithmetic(opcode: u32) -> ISA {
     }
 }
 
-trait Format<PC: Unsigned, IMM: Signed> {
-    const FORMAT: [fn(ISA, PC, u32) -> Instruction<PC, IMM>; 41] = [
+trait Format<U: Unsigned<S>, S: Signed<U>> {
+    const FORMAT: [fn(ISA, U, u32) -> Instruction<U, S>; 41] = [
         Instruction::decode_type_fail, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_u, Instruction::decode_type_b, Instruction::decode_type_b,
         Instruction::decode_type_b,    Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_empty, Instruction::decode_type_empty, Instruction::decode_type_i, Instruction::decode_type_j,
         Instruction::decode_type_i,    Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_u, Instruction::decode_type_i, Instruction::decode_type_r,
@@ -83,14 +83,14 @@ trait Format<PC: Unsigned, IMM: Signed> {
     ];
 }
 
-impl<PC: Unsigned, IMM: Signed> Format<PC, IMM> for ISA {}
+impl<U: Unsigned<S>, S: Signed<U>> Format<U, S> for ISA {}
 
-pub trait GetISA<PC: Unsigned> {
-    fn get_instruction_from_opcode(pc: PC, opcode: u32) -> Self;
+pub trait GetISA<U: Unsigned<S>, S: Signed<U>> {
+    fn get_instruction_from_opcode(pc: U, opcode: u32) -> Self;
     fn get_isa(opcode: u32) -> ISA;
 }
 
-impl GetISA<u32> for Instruction32 {
+impl GetISA<u32, i32> for Instruction32 {
     fn get_instruction_from_opcode(pc: u32, opcode: u32) -> Instruction32 {
         let isa = Instruction32::get_isa(opcode);
         ISA::FORMAT[isa as usize](isa, pc, opcode)
@@ -114,7 +114,7 @@ impl GetISA<u32> for Instruction32 {
     }
 }
 
-impl GetISA<u64> for Instruction64 {
+impl GetISA<u64, i64> for Instruction64 {
     fn get_instruction_from_opcode(pc: u64, opcode: u32) -> Instruction64 {
         let isa = Instruction64::get_isa(opcode);
         ISA::FORMAT[isa as usize](isa, pc, opcode)
@@ -138,94 +138,92 @@ impl GetISA<u64> for Instruction64 {
     }
 }
 
-pub trait Execute<'a, const N: usize> {
-    const EXECUTE: [fn(&mut RV32<'a, N>); 41] = [
-        RV32::UNKNOWN,
-        RV32::ADD,
-        RV32::ADDI,
-        RV32::AND,
-        RV32::ANDI,
-        RV32::AUIPC,
-        RV32::BEQ,
-        RV32::BGE,
-        RV32::BGEU,
-        RV32::BLT,
-        RV32::BLTU,
-        RV32::BNE,
-        RV32::EBREAK,
-        RV32::ECALL,
-        RV32::FENCE,
-        RV32::JAL,
-        RV32::JALR,
-        RV32::LB,
-        RV32::LBU,
-        RV32::LH,
-        RV32::LHU,
-        RV32::LUI,
-        RV32::LW,
-        RV32::OR,
-        RV32::ORI,
-        RV32::SB,
-        RV32::SH,
-        RV32::SLL,
-        RV32::SLLI,
-        RV32::SLT,
-        RV32::SLTI,
-        RV32::SLTIU,
-        RV32::SLTU,
-        RV32::SRA,
-        RV32::SRAI,
-        RV32::SRL,
-        RV32::SRLI,
-        RV32::SUB,
-        RV32::SW,
-        RV32::XOR,
-        RV32::XORI,
+pub trait Execute<U: Unsigned<S>, S: Signed<U>, const N: usize> {
+    const EXECUTE: [fn(&mut RVI<U, S, N>); 40] = [
+        RVI::<U, S, N>::ADD,
+        RVI::<U, S, N>::ADDI,
+        RVI::<U, S, N>::AND,
+        RVI::<U, S, N>::ANDI,
+        RVI::<U, S, N>::AUIPC,
+        RVI::<U, S, N>::BEQ,
+        RVI::<U, S, N>::BGE,
+        RVI::<U, S, N>::BGEU,
+        RVI::<U, S, N>::BLT,
+        RVI::<U, S, N>::BLTU,
+        RVI::<U, S, N>::BNE,
+        RVI::<U, S, N>::EBREAK,
+        RVI::<U, S, N>::ECALL,
+        RVI::<U, S, N>::FENCE,
+        RVI::<U, S, N>::JAL,
+        RVI::<U, S, N>::JALR,
+        RVI::<U, S, N>::LB,
+        RVI::<U, S, N>::LBU,
+        RVI::<U, S, N>::LH,
+        RVI::<U, S, N>::LHU,
+        RVI::<U, S, N>::LUI,
+        RVI::<U, S, N>::LW,
+        RVI::<U, S, N>::OR,
+        RVI::<U, S, N>::ORI,
+        RVI::<U, S, N>::SB,
+        RVI::<U, S, N>::SH,
+        RVI::<U, S, N>::SLL,
+        RVI::<U, S, N>::SLLI,
+        RVI::<U, S, N>::SLT,
+        RVI::<U, S, N>::SLTI,
+        RVI::<U, S, N>::SLTIU,
+        RVI::<U, S, N>::SLTU,
+        RVI::<U, S, N>::SRA,
+        RVI::<U, S, N>::SRAI,
+        RVI::<U, S, N>::SRL,
+        RVI::<U, S, N>::SRLI,
+        RVI::<U, S, N>::SUB,
+        RVI::<U, S, N>::SW,
+        RVI::<U, S, N>::XOR,
+        RVI::<U, S, N>::XORI,
     ];
 }
 
-pub trait Disassemble<'a, PC: Unsigned, IMM: Signed, const N: usize> {
-    const DISASSEMBLE: [fn(Instruction<PC, IMM>); 41] = [
-        RV32::<N>::disassemble_UNKNOWN,
-        RV32::<N>::disassemble_ADD,
-        RV32::<N>::disassemble_ADDI,
-        RV32::<N>::disassemble_AND,
-        RV32::<N>::disassemble_ANDI,
-        RV32::<N>::disassemble_AUIPC,
-        RV32::<N>::disassemble_BEQ,
-        RV32::<N>::disassemble_BGE,
-        RV32::<N>::disassemble_BGEU,
-        RV32::<N>::disassemble_BLT,
-        RV32::<N>::disassemble_BLTU,
-        RV32::<N>::disassemble_BNE,
-        RV32::<N>::disassemble_EBREAK,
-        RV32::<N>::disassemble_ECALL,
-        RV32::<N>::disassemble_FENCE,
-        RV32::<N>::disassemble_JAL,
-        RV32::<N>::disassemble_JALR,
-        RV32::<N>::disassemble_LB,
-        RV32::<N>::disassemble_LBU,
-        RV32::<N>::disassemble_LH,
-        RV32::<N>::disassemble_LHU,
-        RV32::<N>::disassemble_LUI,
-        RV32::<N>::disassemble_LW,
-        RV32::<N>::disassemble_OR,
-        RV32::<N>::disassemble_ORI,
-        RV32::<N>::disassemble_SB,
-        RV32::<N>::disassemble_SH,
-        RV32::<N>::disassemble_SLL,
-        RV32::<N>::disassemble_SLLI,
-        RV32::<N>::disassemble_SLT,
-        RV32::<N>::disassemble_SLTI,
-        RV32::<N>::disassemble_SLTIU,
-        RV32::<N>::disassemble_SLTU,
-        RV32::<N>::disassemble_SRA,
-        RV32::<N>::disassemble_SRAI,
-        RV32::<N>::disassemble_SRL,
-        RV32::<N>::disassemble_SRLI,
-        RV32::<N>::disassemble_SUB,
-        RV32::<N>::disassemble_SW,
-        RV32::<N>::disassemble_XOR,
-        RV32::<N>::disassemble_XORI,
+pub trait Disassemble<U: Unsigned<S>, S: Signed<U>, const N: usize> {
+    const DISASSEMBLE: [fn(Instruction<U, S>); 40] = [
+        RVI::<U, S, N>::disassemble_ADD,
+        RVI::<U, S, N>::disassemble_ADDI,
+        RVI::<U, S, N>::disassemble_AND,
+        RVI::<U, S, N>::disassemble_ANDI,
+        RVI::<U, S, N>::disassemble_AUIPC,
+        RVI::<U, S, N>::disassemble_BEQ,
+        RVI::<U, S, N>::disassemble_BGE,
+        RVI::<U, S, N>::disassemble_BGEU,
+        RVI::<U, S, N>::disassemble_BLT,
+        RVI::<U, S, N>::disassemble_BLTU,
+        RVI::<U, S, N>::disassemble_BNE,
+        RVI::<U, S, N>::disassemble_EBREAK,
+        RVI::<U, S, N>::disassemble_ECALL,
+        RVI::<U, S, N>::disassemble_FENCE,
+        RVI::<U, S, N>::disassemble_JAL,
+        RVI::<U, S, N>::disassemble_JALR,
+        RVI::<U, S, N>::disassemble_LB,
+        RVI::<U, S, N>::disassemble_LBU,
+        RVI::<U, S, N>::disassemble_LH,
+        RVI::<U, S, N>::disassemble_LHU,
+        RVI::<U, S, N>::disassemble_LUI,
+        RVI::<U, S, N>::disassemble_LW,
+        RVI::<U, S, N>::disassemble_OR,
+        RVI::<U, S, N>::disassemble_ORI,
+        RVI::<U, S, N>::disassemble_SB,
+        RVI::<U, S, N>::disassemble_SH,
+        RVI::<U, S, N>::disassemble_SLL,
+        RVI::<U, S, N>::disassemble_SLLI,
+        RVI::<U, S, N>::disassemble_SLT,
+        RVI::<U, S, N>::disassemble_SLTI,
+        RVI::<U, S, N>::disassemble_SLTIU,
+        RVI::<U, S, N>::disassemble_SLTU,
+        RVI::<U, S, N>::disassemble_SRA,
+        RVI::<U, S, N>::disassemble_SRAI,
+        RVI::<U, S, N>::disassemble_SRL,
+        RVI::<U, S, N>::disassemble_SRLI,
+        RVI::<U, S, N>::disassemble_SUB,
+        RVI::<U, S, N>::disassemble_SW,
+        RVI::<U, S, N>::disassemble_XOR,
+        RVI::<U, S, N>::disassemble_XORI,
     ];
 }

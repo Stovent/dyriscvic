@@ -1,6 +1,7 @@
 use crate::common::{instruction::*, types::*};
 
 pub trait I32 {
+    fn load_execute_i(&mut self);
     fn UNKNOWN(&mut self);
     fn ADD(&mut self);
     fn ADDI(&mut self);
@@ -44,46 +45,47 @@ pub trait I32 {
     fn XORI(&mut self);
 }
 
-pub trait DisassembleI32<PC: Unsigned, IMM: Signed, const N: usize> {
-    fn disassemble_UNKNOWN(inst: Instruction<PC, IMM>);
-    fn disassemble_ADD(inst: Instruction<PC, IMM>);
-    fn disassemble_ADDI(inst: Instruction<PC, IMM>);
-    fn disassemble_AND(inst: Instruction<PC, IMM>);
-    fn disassemble_ANDI(inst: Instruction<PC, IMM>);
-    fn disassemble_AUIPC(inst: Instruction<PC, IMM>);
-    fn disassemble_BEQ(inst: Instruction<PC, IMM>);
-    fn disassemble_BGE(inst: Instruction<PC, IMM>);
-    fn disassemble_BGEU(inst: Instruction<PC, IMM>);
-    fn disassemble_BLT(inst: Instruction<PC, IMM>);
-    fn disassemble_BLTU(inst: Instruction<PC, IMM>);
-    fn disassemble_BNE(inst: Instruction<PC, IMM>);
-    fn disassemble_EBREAK(inst: Instruction<PC, IMM>);
-    fn disassemble_ECALL(inst: Instruction<PC, IMM>);
-    fn disassemble_FENCE(inst: Instruction<PC, IMM>);
-    fn disassemble_JAL(inst: Instruction<PC, IMM>);
-    fn disassemble_JALR(inst: Instruction<PC, IMM>);
-    fn disassemble_LB(inst: Instruction<PC, IMM>);
-    fn disassemble_LBU(inst: Instruction<PC, IMM>);
-    fn disassemble_LH(inst: Instruction<PC, IMM>);
-    fn disassemble_LHU(inst: Instruction<PC, IMM>);
-    fn disassemble_LUI(inst: Instruction<PC, IMM>);
-    fn disassemble_LW(inst: Instruction<PC, IMM>);
-    fn disassemble_OR(inst: Instruction<PC, IMM>);
-    fn disassemble_ORI(inst: Instruction<PC, IMM>);
-    fn disassemble_SB(inst: Instruction<PC, IMM>);
-    fn disassemble_SH(inst: Instruction<PC, IMM>);
-    fn disassemble_SLL(inst: Instruction<PC, IMM>);
-    fn disassemble_SLLI(inst: Instruction<PC, IMM>);
-    fn disassemble_SLT(inst: Instruction<PC, IMM>);
-    fn disassemble_SLTI(inst: Instruction<PC, IMM>);
-    fn disassemble_SLTIU(inst: Instruction<PC, IMM>);
-    fn disassemble_SLTU(inst: Instruction<PC, IMM>);
-    fn disassemble_SRA(inst: Instruction<PC, IMM>);
-    fn disassemble_SRAI(inst: Instruction<PC, IMM>);
-    fn disassemble_SRL(inst: Instruction<PC, IMM>);
-    fn disassemble_SRLI(inst: Instruction<PC, IMM>);
-    fn disassemble_SUB(inst: Instruction<PC, IMM>);
-    fn disassemble_SW(inst: Instruction<PC, IMM>);
-    fn disassemble_XOR(inst: Instruction<PC, IMM>);
-    fn disassemble_XORI(inst: Instruction<PC, IMM>);
+pub trait DisassembleI32<U: Unsigned<S>, S: Signed<U>> {
+    fn load_disassemble_i(&mut self);
+    fn disassemble_UNKNOWN(inst: Instruction<U, S>);
+    fn disassemble_ADD(inst: Instruction<U, S>);
+    fn disassemble_ADDI(inst: Instruction<U, S>);
+    fn disassemble_AND(inst: Instruction<U, S>);
+    fn disassemble_ANDI(inst: Instruction<U, S>);
+    fn disassemble_AUIPC(inst: Instruction<U, S>);
+    fn disassemble_BEQ(inst: Instruction<U, S>);
+    fn disassemble_BGE(inst: Instruction<U, S>);
+    fn disassemble_BGEU(inst: Instruction<U, S>);
+    fn disassemble_BLT(inst: Instruction<U, S>);
+    fn disassemble_BLTU(inst: Instruction<U, S>);
+    fn disassemble_BNE(inst: Instruction<U, S>);
+    fn disassemble_EBREAK(inst: Instruction<U, S>);
+    fn disassemble_ECALL(inst: Instruction<U, S>);
+    fn disassemble_FENCE(inst: Instruction<U, S>);
+    fn disassemble_JAL(inst: Instruction<U, S>);
+    fn disassemble_JALR(inst: Instruction<U, S>);
+    fn disassemble_LB(inst: Instruction<U, S>);
+    fn disassemble_LBU(inst: Instruction<U, S>);
+    fn disassemble_LH(inst: Instruction<U, S>);
+    fn disassemble_LHU(inst: Instruction<U, S>);
+    fn disassemble_LUI(inst: Instruction<U, S>);
+    fn disassemble_LW(inst: Instruction<U, S>);
+    fn disassemble_OR(inst: Instruction<U, S>);
+    fn disassemble_ORI(inst: Instruction<U, S>);
+    fn disassemble_SB(inst: Instruction<U, S>);
+    fn disassemble_SH(inst: Instruction<U, S>);
+    fn disassemble_SLL(inst: Instruction<U, S>);
+    fn disassemble_SLLI(inst: Instruction<U, S>);
+    fn disassemble_SLT(inst: Instruction<U, S>);
+    fn disassemble_SLTI(inst: Instruction<U, S>);
+    fn disassemble_SLTIU(inst: Instruction<U, S>);
+    fn disassemble_SLTU(inst: Instruction<U, S>);
+    fn disassemble_SRA(inst: Instruction<U, S>);
+    fn disassemble_SRAI(inst: Instruction<U, S>);
+    fn disassemble_SRL(inst: Instruction<U, S>);
+    fn disassemble_SRLI(inst: Instruction<U, S>);
+    fn disassemble_SUB(inst: Instruction<U, S>);
+    fn disassemble_SW(inst: Instruction<U, S>);
+    fn disassemble_XOR(inst: Instruction<U, S>);
+    fn disassemble_XORI(inst: Instruction<U, S>);
 }
