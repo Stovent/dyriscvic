@@ -10,7 +10,7 @@ pub struct RVI<'a, PC, X, const N: usize> {
 
     pub inst: Instruction<PC, X>,
     pub ext: String,
-    pub eei: &'a mut dyn ExecutionEnvironmentInterface,
+    pub eei: &'a mut dyn ExecutionEnvironmentInterface<PC>,
 }
 
 pub type RV32<'a, const N: usize> = RVI<'a, u32, i32, N>;
@@ -22,7 +22,7 @@ impl<'a> RV32I<'a> {
     pub fn single_step(&mut self) {
         let pc = self.pc;
         self.pc += 4;
-        let opcode = self.eei.get32le(pc as u64);
+        let opcode = self.eei.get32le(pc);
         let inst_size = get_instruction_length(opcode as u16);
         match inst_size {
 //            2 => if self.ext.contains('C'),
