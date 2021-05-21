@@ -86,13 +86,13 @@ trait Format<U: Unsigned<S>, S: Signed<U>> {
 impl<U: Unsigned<S>, S: Signed<U>> Format<U, S> for ISA {}
 
 pub trait GetISA<U: Unsigned<S>, S: Signed<U>> {
-    fn get_instruction_from_opcode(pc: U, opcode: u32) -> Self;
+    fn get_instruction_from_opcode(pc: U, opcode: u32) -> Instruction<U, S>;
     fn get_isa(opcode: u32) -> ISA;
 }
 
 impl GetISA<u32, i32> for Instruction32 {
     fn get_instruction_from_opcode(pc: u32, opcode: u32) -> Instruction32 {
-        let isa = Instruction32::get_isa(opcode);
+        let isa = Self::get_isa(opcode);
         ISA::FORMAT[isa as usize](isa, pc, opcode)
     }
 
@@ -116,7 +116,7 @@ impl GetISA<u32, i32> for Instruction32 {
 
 impl GetISA<u64, i64> for Instruction64 {
     fn get_instruction_from_opcode(pc: u64, opcode: u32) -> Instruction64 {
-        let isa = Instruction64::get_isa(opcode);
+        let isa = Self::get_isa(opcode);
         ISA::FORMAT[isa as usize](isa, pc, opcode)
     }
 

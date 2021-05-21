@@ -2,7 +2,7 @@ use crate::common::{extensions::*, isa::*};
 use crate::rvi::*;
 
 impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32 for RVI<U, S, N> {
-    fn load_execute_i(&mut self) {
+    fn load_execute_i32(&mut self) {
         self.execute[ISA::ADD as usize..=ISA::XORI as usize].copy_from_slice(&RVI::<U, S, N>::EXECUTE);
     }
 
@@ -190,7 +190,7 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32 for RVI<U, S, N> {
 
     fn SRL(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> self.x[self.inst.rs2 as usize].as_u() & 0x1F.into()).as_s();
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> (self.x[self.inst.rs2 as usize].as_u() & 0x1F.into())).as_s();
         }
     }
 

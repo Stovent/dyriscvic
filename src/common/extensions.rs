@@ -1,7 +1,7 @@
 use crate::common::{instruction::*, types::*};
 
 pub trait I32 {
-    fn load_execute_i(&mut self);
+    fn load_execute_i32(&mut self);
     fn UNKNOWN(&mut self);
     fn ADD(&mut self);
     fn ADDI(&mut self);
@@ -46,7 +46,7 @@ pub trait I32 {
 }
 
 pub trait DisassembleI32<U: Unsigned<S>, S: Signed<U>> {
-    fn load_disassemble_i(&mut self);
+    fn load_disassemble_i32(&mut self);
     fn disassemble_UNKNOWN(inst: Instruction<U, S>);
     fn disassemble_ADD(inst: Instruction<U, S>);
     fn disassemble_ADDI(inst: Instruction<U, S>);

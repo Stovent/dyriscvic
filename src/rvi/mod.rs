@@ -31,8 +31,9 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> RVI<U, S, N> {
             execute: [RVI::UNKNOWN; 41],
             disassemble: [RVI::<U, S, N>::disassemble_UNKNOWN; 41],
         };
-        core.load_execute_i();
-        core.load_disassemble_i();
+        core.x[0] = 0.into();
+        core.load_execute_i32();
+        core.load_disassemble_i32();
         core
     }
 }
