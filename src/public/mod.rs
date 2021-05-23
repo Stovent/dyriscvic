@@ -12,6 +12,12 @@ pub trait MemoryAccess<ADDR> {
     fn set32le(&mut self, addr: ADDR, data: u32);
 }
 
+#[derive(Debug)]
+pub enum Exceptions {
+    InstructionAddressMisaligned,
+}
+
 pub trait ExecutionEnvironmentInterface<ADDR> : MemoryAccess<ADDR> {
-    fn trap(&mut self);
+    fn exception(&mut self, exception: Exceptions);
+    fn interrupt(&mut self);
 }

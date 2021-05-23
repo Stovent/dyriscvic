@@ -25,8 +25,8 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> RVI<U, S, N> {
         let mut core = Self {
             x,
             pc,
-            inst: Instruction::<U, S>::new_empty(ISA::UNKNOWN, 0.into()),
-            ext: String::from(ext),
+            inst: Instruction::<U, S>::new_empty(ISA::UNKNOWN, 0u16.into()),
+            ext: String::from(ext).to_ascii_uppercase(),
             eei: Box::new(eei),
             execute: [RVI::UNKNOWN; 41],
             disassemble: [RVI::<U, S, N>::disassemble_UNKNOWN; 41],
@@ -36,13 +36,22 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> RVI<U, S, N> {
         core.load_disassemble_i32();
         core
     }
+
+    #[inline(always)]
+    fn is_misaligned(&self, val: U) -> bool {
+        if self.ext.contains('C') {
+            return !is_even(val);
+        } else {
+            return val & 0b11u32.into() != 0u32.into();
+        }
+    }
 }
 
 impl RV32I {
     pub fn single_step(&mut self) {
         let pc = self.pc;
         self.pc += 4;
-        let opcode = self.eei.get32le(pc);
+        let opcode = self.eei.get32le(pc); // TODO: instruction-address-misaligned
         let inst_size = get_instruction_length(opcode as u16);
         match inst_size {
 //            2 => if self.ext.contains('C'),

@@ -1,4 +1,4 @@
-use dyriscvic::public::{ExecutionEnvironmentInterface, MemoryAccess};
+use dyriscvic::public::*;
 use dyriscvic::rvi::*;
 
 struct ExecutionEnvironment {
@@ -50,7 +50,10 @@ impl MemoryAccess<u32> for ExecutionEnvironment {
 }
 
 impl ExecutionEnvironmentInterface<u32> for ExecutionEnvironment {
-    fn trap(&mut self) {}
+    fn exception(&mut self, exception: Exceptions) {
+        println!("Exception: {:?}", exception);
+    }
+    fn interrupt(&mut self) {}
 }
 
 fn main() {

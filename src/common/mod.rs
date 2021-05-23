@@ -4,6 +4,7 @@ pub mod isa;
 pub mod types;
 
 pub use instruction::{Instruction, Instruction32, Instruction64};
+use types::*;
 
 /// Returns the width of the instruction word in bytes, 24 if greater than 192 bits.
 pub fn get_instruction_length(inst: u16) -> u16 {
@@ -21,4 +22,9 @@ pub fn get_instruction_length(inst: u16) -> u16 {
     } else {
         24
     }
+}
+
+#[inline(always)]
+pub fn is_even<T: Int>(num: T) -> bool {
+    return num & 1u16.into() == 0u16.into();
 }

@@ -1,4 +1,5 @@
 use crate::common::{extensions::*, isa::*};
+use crate::public::*;
 use crate::rvi::*;
 
 impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32 for RVI<U, S, N> {
@@ -84,16 +85,26 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32 for RVI<U, S, N> {
     }
 
     fn JAL(&mut self) {
-        self.pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
-        if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = self.inst.pc.as_s() + 4.into();
+        let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+        if self.is_misaligned(pc) {
+            self.eei.exception(Exceptions::InstructionAddressMisaligned);
+        } else {
+            self.pc = pc;
+            if self.inst.rd != 0 {
+                self.x[self.inst.rd as usize] = self.inst.pc.as_s() + 4.into(); // TODO: is this executed before the exception occurs?
+            }
         }
     }
 
     fn JALR(&mut self) {
-        self.pc = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u() & 0xFFFF_FFFE.into();
-        if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = self.inst.pc.as_s() + 4.into();
+        let pc = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u() & 0xFFFF_FFFEu32.into();
+        if self.is_misaligned(pc) {
+            self.eei.exception(Exceptions::InstructionAddressMisaligned);
+        } else {
+            self.pc = pc;
+            if self.inst.rd != 0 {
+                self.x[self.inst.rd as usize] = self.inst.pc.as_s() + 4.into(); // TODO: is this executed before the exception occurs?
+            }
         }
     }
 
@@ -184,19 +195,19 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32 for RVI<U, S, N> {
 
     fn SRAI(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.inst.imm & 0x1F.into());
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.inst.imm & 0x1Fi32.into());
         }
     }
 
     fn SRL(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> (self.x[self.inst.rs2 as usize].as_u() & 0x1F.into())).as_s();
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> (self.x[self.inst.rs2 as usize].as_u() & 0x1Fu32.into())).as_s();
         }
     }
 
     fn SRLI(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> (self.inst.imm.as_u() & 0x1F.into())).as_s();
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> (self.inst.imm.as_u() & 0x1Fu32.into())).as_s();
         }
     }
 
