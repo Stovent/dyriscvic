@@ -2,9 +2,9 @@ use crate::common::{extensions::*, isa::*};
 use crate::public::*;
 use crate::rvi::*;
 
-impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32 for RVI<U, S, N> {
+impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32<U, S, N> for RVI<U, S, N> {
     fn load_execute_i32(&mut self) {
-        self.execute[ISA::ADD as usize..=ISA::XORI as usize].copy_from_slice(&RVI::<U, S, N>::EXECUTE);
+        self.execute[ISA::ADD as usize..=ISA::XORI as usize].copy_from_slice(&RVI::<U, S, N>::EXECUTE_I32);
     }
 
     fn UNKNOWN(&mut self) {}

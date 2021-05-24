@@ -1,9 +1,9 @@
 use crate::common::{extensions::*, types::*};
 use crate::rvi::*;
 
-impl<U: Unsigned<S>, S: Signed<U>, const N: usize> DisassembleI32<U, S> for RVI<U, S, N> {
+impl<U: Unsigned<S>, S: Signed<U>, const N: usize> DisassembleI32<U, S, N> for RVI<U, S, N> {
     fn load_disassemble_i32(&mut self) {
-        self.disassemble[ISA::ADD as usize..=ISA::XORI as usize].copy_from_slice(&Self::DISASSEMBLE);
+        self.disassemble[ISA::ADD as usize..=ISA::XORI as usize].copy_from_slice(&Self::DISASSEMBLE_I32);
     }
 
     fn disassemble_UNKNOWN(inst: Instruction<U, S>) {

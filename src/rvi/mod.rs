@@ -67,6 +67,3 @@ impl RV32I {
         };
     }
 }
-
-impl<U: Unsigned<S>, S: Signed<U>, const N: usize> Execute<U, S, N> for RVI<U, S, N> {}
-impl<U: Unsigned<S>, S: Signed<U>, const N: usize> Disassemble<U, S, N> for RVI<U, S, N> {}
