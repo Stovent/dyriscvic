@@ -41,37 +41,67 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32<U, S, N> for RVI<U, S, N>
 
     fn BEQ(&mut self) {
         if self.x[self.inst.rs1 as usize] == self.x[self.inst.rs2 as usize] {
-            self.pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            if self.is_misaligned(pc) {
+                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
     fn BGE(&mut self) {
         if self.x[self.inst.rs1 as usize] >= self.x[self.inst.rs2 as usize] {
-            self.pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            if self.is_misaligned(pc) {
+                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
     fn BGEU(&mut self) {
         if (self.x[self.inst.rs1 as usize].as_u()) >= (self.x[self.inst.rs2 as usize].as_u()) {
-            self.pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            if self.is_misaligned(pc) {
+                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
     fn BLT(&mut self) {
         if self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize] {
-            self.pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            if self.is_misaligned(pc) {
+                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
     fn BLTU(&mut self) {
         if (self.x[self.inst.rs1 as usize].as_u()) < (self.x[self.inst.rs2 as usize].as_u()) {
-            self.pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            if self.is_misaligned(pc) {
+                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
     fn BNE(&mut self) {
         if self.x[self.inst.rs1 as usize] != self.x[self.inst.rs2 as usize] {
-            self.pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
+            if self.is_misaligned(pc) {
+                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
@@ -91,7 +121,7 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32<U, S, N> for RVI<U, S, N>
         } else {
             self.pc = pc;
             if self.inst.rd != 0 {
-                self.x[self.inst.rd as usize] = self.inst.pc.as_s() + 4.into(); // TODO: is this executed before the exception occurs?
+                self.x[self.inst.rd as usize] = self.inst.pc.as_s() + 4.into();
             }
         }
     }
@@ -103,7 +133,7 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32<U, S, N> for RVI<U, S, N>
         } else {
             self.pc = pc;
             if self.inst.rd != 0 {
-                self.x[self.inst.rd as usize] = self.inst.pc.as_s() + 4.into(); // TODO: is this executed before the exception occurs?
+                self.x[self.inst.rd as usize] = self.inst.pc.as_s() + 4.into();
             }
         }
     }
