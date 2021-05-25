@@ -1,4 +1,4 @@
-use crate::common::{extensions::*, isa::*};
+use crate::common::isa::*;
 use crate::public::*;
 use crate::rvi::*;
 

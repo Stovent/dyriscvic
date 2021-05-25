@@ -1,4 +1,4 @@
-pub mod extensions;
+pub mod decoder;
 pub mod instruction;
 pub mod isa;
 pub mod types;

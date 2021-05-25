@@ -1,7 +1,7 @@
 pub mod disassemble;
 pub mod execute;
 
-use crate::common::{*, extensions::*, isa::*, types::*};
+use crate::common::{*, decoder::*, isa::*, types::*};
 use crate::public::ExecutionEnvironmentInterface;
 
 pub struct RVI<U: Unsigned<S>, S: Signed<U>, const N: usize> {
