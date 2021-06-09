@@ -24,7 +24,6 @@ pub fn get_instruction_length(inst: u16) -> u16 {
     }
 }
 
-#[inline(always)]
 pub fn is_even<T: Int>(num: T) -> bool {
     return num & 1u16.into() == 0u16.into();
 }

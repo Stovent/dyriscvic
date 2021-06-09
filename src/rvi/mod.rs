@@ -1,7 +1,7 @@
 pub mod disassemble;
 pub mod execute;
 
-use crate::common::{*, decoder::*, isa::*, types::*};
+use crate::common::{*, instruction::*, isa::*, types::*};
 use crate::public::ExecutionEnvironmentInterface;
 
 pub struct RVI<U: Unsigned<S>, S: Signed<U>, const N: usize> {
@@ -37,7 +37,6 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> RVI<U, S, N> {
         core
     }
 
-    #[inline(always)]
     fn is_misaligned(&self, val: U) -> bool {
         if self.ext.contains('C') {
             return !is_even(val);
@@ -48,13 +47,13 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> RVI<U, S, N> {
 
     pub fn single_step(&mut self) {
         let pc = self.pc;
-        self.pc += 4u16.into();
+        self.pc += 4u32.into();
         let opcode = self.eei.get32le(pc); // TODO: instruction-address-misaligned
         let inst_size = get_instruction_length(opcode as u16);
         match inst_size {
 //            2 => if self.ext.contains('C'),
             4 => {
-                self.inst = get_instruction_from_opcode_32(pc, opcode);
+                self.inst = Instruction::<U, S>::from_opcode_32(pc, opcode);
 
                 #[cfg(debug_assertions)]
                 println!("Instruction: {}", self.disassemble[self.inst.inst as usize](self.inst));

@@ -1,4 +1,4 @@
-use crate::common::{isa::ISA, types::*};
+use crate::common::{isa::*, decoder::*, types::*};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Instruction<U, S> {
@@ -66,5 +66,10 @@ impl<U: Unsigned<S>, S: Signed<U>> Instruction<U, S> {
         let rd = (opcode >> 7 & 0b1_1111) as u8;
         let imm = opcode as i32 >> 11 & 0xFFF0_0000 | opcode as i32 & 0xF_F000 | opcode as i32 >> 9 & 0x0800 | opcode as i32 >> 20 & 0x7FE;
         Instruction { inst, pc, rd, rs1: 0, rs2: 0, imm: imm.into() }
+    }
+
+    pub fn from_opcode_32(pc: U, opcode: u32) -> Instruction<U, S> {
+        let isa = ISA::from_opcode_32(opcode);
+        ISA::FORMAT[isa as usize](isa, pc, opcode)
     }
 }
