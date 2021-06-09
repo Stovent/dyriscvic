@@ -262,3 +262,46 @@ impl<U: Unsigned<S>, S: Signed<U>, const N: usize> I32<U, S, N> for RVI<U, S, N>
         }
     }
 }
+
+impl I64 for RV64I {
+    fn load_execute_i64(&mut self) {
+        self.execute[ISA::ADDIW as usize..=ISA::SUBW as usize].copy_from_slice(&Self::EXECUTE_I64);
+    }
+
+    fn ADDIW(&mut self) {
+    }
+
+    fn ADDW(&mut self) {
+    }
+
+    fn LD(&mut self) {
+    }
+
+    fn LWU(&mut self) {
+    }
+
+    fn SD(&mut self) {
+    }
+
+    fn SLLIW(&mut self) {
+    }
+
+    fn SLLW(&mut self) {
+    }
+
+    fn SRAIW(&mut self) {
+    }
+
+    fn SRAW(&mut self) {
+    }
+
+    fn SRLIW(&mut self) {
+    }
+
+    fn SRLW(&mut self) {
+    }
+
+    fn SUBW(&mut self) {
+    }
+
+}
