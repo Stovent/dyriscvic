@@ -4,32 +4,32 @@ pub mod execute;
 use crate::common::{*, instruction::*, isa::*, types::*};
 use crate::public::ExecutionEnvironmentInterface;
 
-pub struct RVI<U: Unsigned<S>, S: Signed<U>, const N: usize> {
+pub struct RVI<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const N: usize> {
     x: [S; N],
     pc: U,
 
     inst: Instruction<U, S>,
     pub ext: String,
-    eei: Box<dyn ExecutionEnvironmentInterface<U>>,
+    eei: EEI,
     execute: [fn(&mut Self); ISA::_SIZE as usize],
     disassemble: [fn(Instruction<U, S>) -> String; ISA::_SIZE as usize],
 }
 
-pub type RV32<const N: usize> = RVI<u32, i32, N>;
-pub type RV32E = RV32<16>;
-pub type RV32I = RV32<32>;
-pub type RV64I = RVI<u64, i64, 32>;
+pub type RV32<EEI: ExecutionEnvironmentInterface<u32>, const N: usize> = RVI<u32, i32, EEI, N>;
+pub type RV32E<EEI: ExecutionEnvironmentInterface<u32>> = RV32<EEI, 16>;
+pub type RV32I<EEI: ExecutionEnvironmentInterface<u32>> = RV32<EEI, 32>;
+pub type RV64I<EEI: ExecutionEnvironmentInterface<u64>> = RVI<u64, i64, EEI, 32>;
 
-impl<U: Unsigned<S>, S: Signed<U>, const N: usize> RVI<U, S, N> {
-    pub fn new(x: [S; N], pc: U, ext: &str, eei: impl ExecutionEnvironmentInterface<U> + 'static) -> Self {
+impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const N: usize> RVI<U, S, EEI, N> {
+    pub fn new(x: [S; N], pc: U, ext: &str, eei: EEI) -> Self {
         let mut core = Self {
             x,
             pc,
             inst: Instruction::<U, S>::new_empty(ISA::UNKNOWN, 0u16.into()),
             ext: String::from(ext).to_ascii_uppercase(),
-            eei: Box::new(eei),
+            eei,
             execute: [RVI::UNKNOWN; ISA::_SIZE as usize],
-            disassemble: [RVI::<U, S, N>::disassemble_UNKNOWN; ISA::_SIZE as usize],
+            disassemble: [RVI::<U, S, EEI, N>::disassemble_UNKNOWN; ISA::_SIZE as usize],
         };
         core.x[0] = 0.into();
         core.load_execute_i32();
