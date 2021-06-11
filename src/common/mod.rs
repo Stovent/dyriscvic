@@ -27,3 +27,7 @@ pub fn get_instruction_length(inst: u16) -> u16 {
 pub fn is_even<T: Int>(num: T) -> bool {
     return num & 1u16.into() == 0u16.into();
 }
+
+pub fn u32_to_slice_le(data: u32) -> [u8; 4] {
+    [data as u8, (data >> 8) as u8, (data >> 16) as u8, (data >> 24) as u8]
+}

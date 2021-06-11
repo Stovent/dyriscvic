@@ -1,5 +1,5 @@
 use dyriscvic::public::*;
-use dyriscvic::rvi::*;
+use dyriscvic::{rvi::*, common::*};
 
 struct ExecutionEnvironment {
     pub memory: [u8; 4096],
@@ -60,10 +60,9 @@ fn main() {
     let mut eei = ExecutionEnvironment {
         memory: [0; 4096],
     };
-    // eei.memory[0..4].copy_from_slice(&[0b0_0010011, 0b1_100_0110, 0b0000_0001, 0xF8]); // XORI
-    // eei.memory[4..8].copy_from_slice(&[0b1_1101111, 0b0000_0000, 0b000_0_0000, 0b0_0000000]); // JAL 0
-    eei.memory[0..4].copy_from_slice(&[0b1_0010011, 0b0_111_0000, 0b000_0_0000, 0b0_0000000]); // ANDI 0
-    eei.memory[4..8].copy_from_slice(&[0b1_1101111, 0b1111_0000, 0b110_1_1111, 0b1_1111111]); // JAL -4
+
+    eei.memory[0..4].copy_from_slice(&u32_to_slice_le(assemble::ANDI(1, 0, 0))); // ANDI x1, x0, 0
+    eei.memory[4..8].copy_from_slice(&u32_to_slice_le(assemble::JAL(0, -4i32 as u32))); // JAL x0, -4
 
     let mut rv32i = RV32I::new([0; 32], 0, "", eei);
 
