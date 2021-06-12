@@ -15,6 +15,7 @@ pub trait MemoryAccess<ADDR> {
 #[derive(Debug)]
 pub enum Exceptions {
     InstructionAddressMisaligned,
+    IllegalInstruction,
 }
 
 pub trait ExecutionEnvironmentInterface<ADDR> : MemoryAccess<ADDR> {
