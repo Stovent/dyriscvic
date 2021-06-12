@@ -141,45 +141,37 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
     }
 
     fn LB(&mut self) {
-        let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        if self.is_misaligned(addr) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
-        } else if self.inst.rd == 0 {
+        if self.inst.rd == 0 {
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
+            let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = (self.eei.get8(addr) as i8).into();
         }
     }
 
     fn LBU(&mut self) {
-        let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        if self.is_misaligned(addr) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
-        } else if self.inst.rd == 0 {
+        if self.inst.rd == 0 {
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
+            let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = self.eei.get8(addr).into();
         }
     }
 
     fn LH(&mut self) {
-        let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        if self.is_misaligned(addr) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
-        } else if self.inst.rd == 0 {
+        if self.inst.rd == 0 {
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
+            let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = (self.eei.get16(addr) as i16).into();
         }
     }
 
     fn LHU(&mut self) {
-        let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        if self.is_misaligned(addr) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
-        } else if self.inst.rd == 0 {
+        if self.inst.rd == 0 {
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
+            let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = self.eei.get16(addr).into();
         }
     }
@@ -191,12 +183,10 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
     }
 
     fn LW(&mut self) {
-        let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        if self.is_misaligned(addr) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
-        } else if self.inst.rd == 0 {
+        if self.inst.rd == 0 {
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
+            let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = (self.eei.get32(addr) as i32).into();
         }
     }
@@ -215,20 +205,12 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn SB(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        if self.is_misaligned(addr) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
-        } else {
-            self.eei.set8(addr, self.x[self.inst.rs2 as usize].as_byte());
-        }
+        self.eei.set8(addr, self.x[self.inst.rs2 as usize].as_byte());
     }
 
     fn SH(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        if self.is_misaligned(addr) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
-        } else {
-            self.eei.set16(addr, self.x[self.inst.rs2 as usize].as_half());
-        }
+        self.eei.set16(addr, self.x[self.inst.rs2 as usize].as_half());
     }
 
     fn SLL(&mut self) {
@@ -299,11 +281,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn SW(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        if self.is_misaligned(addr) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
-        } else {
-            self.eei.set32(addr, self.x[self.inst.rs2 as usize].as_word());
-        }
+        self.eei.set32(addr, self.x[self.inst.rs2 as usize].as_word());
     }
 
     fn XOR(&mut self) {
