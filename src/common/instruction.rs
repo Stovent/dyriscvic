@@ -20,17 +20,8 @@ impl<U: Unsigned<S>, S: Signed<U>> Instruction<U, S> {
         ISA::FORMAT[isa as usize](isa, pc, opcode)
     }
 
-    pub fn new_empty(inst: ISA, pc: U) -> Self {
+    pub fn empty(inst: ISA, pc: U, _: u32) -> Self {
         Self { inst, pc, rd: 0, rs1: 0, rs2: 0, imm: 0.into() }
-    }
-
-    pub fn decode_type_fail(inst: ISA, pc: U, opcode: u32) -> Instruction<U, S> {
-        println!("Bad format {:#X}", opcode);
-        Instruction::new_empty(inst, pc)
-    }
-
-    pub fn decode_type_empty(inst: ISA, pc: U, _: u32) -> Instruction<U, S> {
-        Instruction::new_empty(inst, pc)
     }
 
     pub fn decode_type_r(inst: ISA, pc: U, opcode: u32) -> Instruction<U, S> {

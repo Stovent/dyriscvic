@@ -26,7 +26,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
         let mut core = Self {
             x,
             pc,
-            inst: Instruction::<U, S>::new_empty(ISA::UNKNOWN, 0u16.into()),
+            inst: Instruction::<U, S>::empty(ISA::UNKNOWN, 0u16.into(), 0),
             ext: String::from(ext).to_ascii_uppercase(),
             eei,
             execute: [RVI::UNKNOWN; ISA::_SIZE as usize],

@@ -2,10 +2,10 @@ use crate::common::{instruction::*, isa::*, types::*};
 
 pub trait Format<U: Unsigned<S>, S: Signed<U>> {
     const FORMAT: [fn(ISA, U, u32) -> Instruction<U, S>; ISA::_SIZE as usize] = [
-        Instruction::decode_type_fail,
+        Instruction::empty,
 
         Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_u, Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_b,
-        Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_empty, Instruction::decode_type_empty, Instruction::decode_type_i, Instruction::decode_type_j, Instruction::decode_type_i,
+        Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_b, Instruction::empty,         Instruction::empty,         Instruction::decode_type_i, Instruction::decode_type_j, Instruction::decode_type_i,
         Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_u, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i,
         Instruction::decode_type_s, Instruction::decode_type_s, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_r,
         Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_r, Instruction::decode_type_s, Instruction::decode_type_r, Instruction::decode_type_i,
