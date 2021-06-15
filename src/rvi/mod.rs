@@ -49,7 +49,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
     pub fn single_step(&mut self) {
         let pc = self.pc;
         self.pc += 4u32.into();
-        let opcode = self.eei.get32le(pc); // TODO: instruction-address-misaligned
+        let opcode = self.eei.get_opcode_32(pc); // TODO: instruction-address-misaligned
         let inst_size = get_instruction_length(opcode as u16);
         match inst_size {
 //            2 => if self.ext.contains('C'),

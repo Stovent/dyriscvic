@@ -6,46 +6,34 @@ struct ExecutionEnvironment {
 }
 
 impl MemoryAccess<u32> for ExecutionEnvironment {
-    fn get8(&mut self, addr: u32) -> u8 {
+    fn get_byte(&mut self, addr: u32) -> u8 {
         return self.memory[addr as usize];
     }
 
-    fn get16(&mut self, addr: u32) -> u16 {
-        return self.get16le(addr);
+    fn get_half(&mut self, addr: u32) -> u16 {
+        return (self.get_byte(addr + 1) as u16) << 8 | self.get_byte(addr) as u16;
     }
 
-    fn get16le(&mut self, addr: u32) -> u16 {
-        return (self.get8(addr + 1) as u16) << 8 | self.get8(addr) as u16;
+    fn get_word(&mut self, addr: u32) -> u32 {
+        return (self.get_half(addr + 2) as u32) << 16 | self.get_half(addr) as u32;
     }
 
-    fn get32(&mut self, addr: u32) -> u32 {
-        return self.get32le(addr);
-    }
-
-    fn get32le(&mut self, addr: u32) -> u32 {
-        return (self.get16le(addr + 2) as u32) << 16 | self.get16le(addr) as u32;
-    }
-
-    fn set8(&mut self, addr: u32, data: u8) {
+    fn set_byte(&mut self, addr: u32, data: u8) {
         self.memory[addr as usize] = data;
     }
 
-    fn set16(&mut self, addr: u32, data: u16) {
-        self.set16le(addr, data);
+    fn set_half(&mut self, addr: u32, data: u16) {
+        self.set_byte(addr, data as u8);
+        self.set_byte(addr + 1, (data >> 8) as u8);
     }
 
-    fn set16le(&mut self, addr: u32, data: u16) {
-        self.set8(addr, data as u8);
-        self.set8(addr + 1, (data >> 8) as u8);
+    fn set_word(&mut self, addr: u32, data: u32) {
+        self.set_half(addr, data as u16);
+        self.set_half(addr + 2, (data >> 16) as u16);
     }
 
-    fn set32(&mut self, addr: u32, data: u32) {
-        return self.set32le(addr, data);
-    }
-
-    fn set32le(&mut self, addr: u32, data: u32) {
-        self.set16le(addr, data as u16);
-        self.set16le(addr + 2, (data >> 16) as u16);
+    fn get_opcode_32(&mut self, addr: u32) -> u32 {
+        return self.get_word(addr);
     }
 }
 

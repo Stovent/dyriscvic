@@ -145,7 +145,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = (self.eei.get8(addr) as i8).into();
+            self.x[self.inst.rd as usize] = (self.eei.get_byte(addr) as i8).into();
         }
     }
 
@@ -154,7 +154,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = self.eei.get8(addr).into();
+            self.x[self.inst.rd as usize] = self.eei.get_byte(addr).into();
         }
     }
 
@@ -163,7 +163,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = (self.eei.get16(addr) as i16).into();
+            self.x[self.inst.rd as usize] = (self.eei.get_half(addr) as i16).into();
         }
     }
 
@@ -172,7 +172,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = self.eei.get16(addr).into();
+            self.x[self.inst.rd as usize] = self.eei.get_half(addr).into();
         }
     }
 
@@ -187,7 +187,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.exception(Exceptions::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = (self.eei.get32(addr) as i32).into();
+            self.x[self.inst.rd as usize] = (self.eei.get_word(addr) as i32).into();
         }
     }
 
@@ -205,12 +205,12 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn SB(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        self.eei.set8(addr, self.x[self.inst.rs2 as usize].as_byte());
+        self.eei.set_byte(addr, self.x[self.inst.rs2 as usize].as_byte());
     }
 
     fn SH(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        self.eei.set16(addr, self.x[self.inst.rs2 as usize].as_half());
+        self.eei.set_half(addr, self.x[self.inst.rs2 as usize].as_half());
     }
 
     fn SLL(&mut self) {
@@ -281,7 +281,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn SW(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        self.eei.set32(addr, self.x[self.inst.rs2 as usize].as_word());
+        self.eei.set_word(addr, self.x[self.inst.rs2 as usize].as_word());
     }
 
     fn XOR(&mut self) {
@@ -337,5 +337,4 @@ impl<EEI: ExecutionEnvironmentInterface<u64>> I64 for RV64I<EEI> {
 
     fn SUBW(&mut self) {
     }
-
 }
