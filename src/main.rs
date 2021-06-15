@@ -38,10 +38,9 @@ impl MemoryAccess<u32> for ExecutionEnvironment {
 }
 
 impl ExecutionEnvironmentInterface<u32> for ExecutionEnvironment {
-    fn exception(&mut self, exception: Exceptions) {
-        println!("Exception: {:?}", exception);
+    fn trap(&mut self, trap: Traps) {
+        println!("Trap: {:?}", trap);
     }
-    fn interrupt(&mut self) {}
 }
 
 fn main() {

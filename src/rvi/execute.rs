@@ -8,7 +8,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
     }
 
     fn UNKNOWN(&mut self) {
-        self.eei.exception(Exceptions::IllegalInstruction);
+        self.eei.trap(Traps::IllegalInstruction);
     }
 
     fn ADD(&mut self) {
@@ -45,7 +45,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
         if self.x[self.inst.rs1 as usize] == self.x[self.inst.rs2 as usize] {
             let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
             if self.is_misaligned(pc) {
-                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+                self.eei.trap(Traps::InstructionAddressMisaligned);
             } else {
                 self.pc = pc;
             }
@@ -56,7 +56,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
         if self.x[self.inst.rs1 as usize] >= self.x[self.inst.rs2 as usize] {
             let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
             if self.is_misaligned(pc) {
-                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+                self.eei.trap(Traps::InstructionAddressMisaligned);
             } else {
                 self.pc = pc;
             }
@@ -67,7 +67,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
         if (self.x[self.inst.rs1 as usize].as_u()) >= (self.x[self.inst.rs2 as usize].as_u()) {
             let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
             if self.is_misaligned(pc) {
-                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+                self.eei.trap(Traps::InstructionAddressMisaligned);
             } else {
                 self.pc = pc;
             }
@@ -78,7 +78,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
         if self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize] {
             let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
             if self.is_misaligned(pc) {
-                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+                self.eei.trap(Traps::InstructionAddressMisaligned);
             } else {
                 self.pc = pc;
             }
@@ -89,7 +89,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
         if (self.x[self.inst.rs1 as usize].as_u()) < (self.x[self.inst.rs2 as usize].as_u()) {
             let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
             if self.is_misaligned(pc) {
-                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+                self.eei.trap(Traps::InstructionAddressMisaligned);
             } else {
                 self.pc = pc;
             }
@@ -100,7 +100,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
         if self.x[self.inst.rs1 as usize] != self.x[self.inst.rs2 as usize] {
             let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
             if self.is_misaligned(pc) {
-                self.eei.exception(Exceptions::InstructionAddressMisaligned);
+                self.eei.trap(Traps::InstructionAddressMisaligned);
             } else {
                 self.pc = pc;
             }
@@ -108,9 +108,11 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
     }
 
     fn EBREAK(&mut self) {
+        self.eei.trap(Traps::Breakpoint);
     }
 
     fn ECALL(&mut self) {
+        self.eei.trap(Traps::SystemCall);
     }
 
     fn FENCE(&mut self) {
@@ -119,7 +121,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
     fn JAL(&mut self) {
         let pc = (self.inst.pc.as_s() + self.inst.imm).as_u();
         if self.is_misaligned(pc) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
+            self.eei.trap(Traps::InstructionAddressMisaligned);
         } else {
             self.pc = pc;
             if self.inst.rd != 0 {
@@ -131,7 +133,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
     fn JALR(&mut self) {
         let pc = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u() & 0xFFFF_FFFEu32.into();
         if self.is_misaligned(pc) {
-            self.eei.exception(Exceptions::InstructionAddressMisaligned);
+            self.eei.trap(Traps::InstructionAddressMisaligned);
         } else {
             self.pc = pc;
             if self.inst.rd != 0 {
@@ -142,7 +144,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn LB(&mut self) {
         if self.inst.rd == 0 {
-            self.eei.exception(Exceptions::IllegalInstruction);
+            self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = (self.eei.get_byte(addr) as i8).into();
@@ -151,7 +153,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn LBU(&mut self) {
         if self.inst.rd == 0 {
-            self.eei.exception(Exceptions::IllegalInstruction);
+            self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = self.eei.get_byte(addr).into();
@@ -160,7 +162,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn LH(&mut self) {
         if self.inst.rd == 0 {
-            self.eei.exception(Exceptions::IllegalInstruction);
+            self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = (self.eei.get_half(addr) as i16).into();
@@ -169,7 +171,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn LHU(&mut self) {
         if self.inst.rd == 0 {
-            self.eei.exception(Exceptions::IllegalInstruction);
+            self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = self.eei.get_half(addr).into();
@@ -184,7 +186,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn LW(&mut self) {
         if self.inst.rd == 0 {
-            self.eei.exception(Exceptions::IllegalInstruction);
+            self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
             self.x[self.inst.rd as usize] = (self.eei.get_word(addr) as i32).into();

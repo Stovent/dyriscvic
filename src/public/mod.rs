@@ -25,12 +25,13 @@ pub trait MemoryAccess<ADDR> {
 }
 
 #[derive(Debug)]
-pub enum Exceptions {
+pub enum Traps {
+    Breakpoint,
     InstructionAddressMisaligned,
     IllegalInstruction,
+    SystemCall,
 }
 
 pub trait ExecutionEnvironmentInterface<ADDR> : MemoryAccess<ADDR> {
-    fn exception(&mut self, exception: Exceptions);
-    fn interrupt(&mut self);
+    fn trap(&mut self, trap: Traps);
 }
