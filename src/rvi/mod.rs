@@ -1,3 +1,5 @@
+//! The core module, containing the structs, assembler, disassembler and interpreter.
+
 pub mod assemble;
 pub mod disassemble;
 pub mod execute;
@@ -5,23 +7,43 @@ pub mod execute;
 use crate::common::{*, instruction::*, isa::*, types::*};
 use crate::public::ExecutionEnvironmentInterface;
 
+/// Struct representing a RISC-V hart.
+///
+/// `U` is the program counter type (u32 or u64).
+/// `S` is the register type (i32 or i64).
+/// `EEI` is the execution environment of the hart, provided by the user.
+/// `N` is the number of integer registers (16 or 32).
 pub struct RVI<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const N: usize> {
-    x: [S; N],
-    pc: U,
+    /// The integer registers. `x[0]` must always be 0.
+    pub x: [S; N],
+    /// The program counter. It points to the next instruction before executing the current instruction.
+    pub pc: U,
 
-    inst: Instruction<U, S>,
+    /// The instruction currently being executed.
+    pub inst: Instruction<U, S>,
+    /// The list of ISA extensions.
     pub ext: String,
     eei: EEI,
     execute: [fn(&mut Self); ISA::_SIZE as usize],
     disassemble: [fn(Instruction<U, S>) -> String; ISA::_SIZE as usize],
 }
 
+/// Convenient alias defining a RV32 hart.
 pub type RV32<EEI: ExecutionEnvironmentInterface<u32>, const N: usize> = RVI<u32, i32, EEI, N>;
+/// Convenient alias defining a RV32E hart.
 pub type RV32E<EEI: ExecutionEnvironmentInterface<u32>> = RV32<EEI, 16>;
+/// Convenient alias defining a RV32I hart.
 pub type RV32I<EEI: ExecutionEnvironmentInterface<u32>> = RV32<EEI, 32>;
+/// Convenient alias defining a RV64I hart.
 pub type RV64I<EEI: ExecutionEnvironmentInterface<u64>> = RVI<u64, i64, EEI, 32>;
 
 impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const N: usize> RVI<U, S, EEI, N> {
+    /// Creates a new hart.
+    ///
+    /// `x` is the initial state of the registers. `x[0]` will be set to 0 anyway. and must stay at 0.
+    /// `pc` is the initial program counter value.
+    /// `ext` is a string containing the ISA extensions to be used.
+    /// `eei` is the execution environment interface.
     pub fn new(x: [S; N], pc: U, ext: &str, eei: EEI) -> Self {
         let mut core = Self {
             x,
@@ -46,6 +68,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
         }
     }
 
+    /// Executes a single intruction on the hart.
     pub fn single_step(&mut self) {
         let pc = self.pc;
         self.pc += 4u32.into();

@@ -24,14 +24,21 @@ pub trait MemoryAccess<ADDR> {
     fn get_opcode_32(&mut self, addr: ADDR) -> u32;
 }
 
-#[derive(Debug)]
+/// Traps that can occur during execution.
+#[derive(Clone, Copy, Debug)]
 pub enum Traps {
+    /// Occurs when an EBREAK instruction is executed.
     Breakpoint,
+    /// Occurs when branching to a misaligned address.
     InstructionAddressMisaligned,
+    /// Occurs when an illegal instruction or unknown opcode is executed.
     IllegalInstruction,
+    /// Occurs when an ECALL instruction is executed.
     SystemCall,
 }
 
+/// Trait representing the execution environment.
 pub trait ExecutionEnvironmentInterface<ADDR> : MemoryAccess<ADDR> {
+    /// Called by the library when a trap occurs. See [`Traps`] for a list of the possible traps.
     fn trap(&mut self, trap: Traps);
 }

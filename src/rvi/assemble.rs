@@ -1,3 +1,5 @@
+//! Instruction assembler. Parameters are in the same order as in the mnemonic.
+
 use crate::common::instruction::*;
 
 // I32

@@ -1,3 +1,5 @@
+//! Traits, enums and structs shared betwenn the library's components and that can be useful to the user.
+
 pub mod decoder;
 pub mod instruction;
 pub mod isa;
@@ -24,10 +26,13 @@ pub fn get_instruction_length(inst: u16) -> u16 {
     }
 }
 
+/// Returns true if the given number is even, false if it odd.
 pub fn is_even<T: Int>(num: T) -> bool {
     return num & 1u16.into() == 0u16.into();
 }
 
+/// Converts a 32-bits word to a little-endian slice.
+/// `slice[0]` will have the LSB and `slice[3]` the MSB.
 pub fn u32_to_slice_le(data: u32) -> [u8; 4] {
     [data as u8, (data >> 8) as u8, (data >> 16) as u8, (data >> 24) as u8]
 }
