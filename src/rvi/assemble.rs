@@ -1,5 +1,6 @@
 use crate::common::instruction::*;
 
+// I32
 pub fn ADD(rd: u8, rs1: u8, rs2: u8) -> u32 {
     encode_type_r(0b0110011, rd, 0, rs1, rs2, 0)
 }
@@ -159,4 +160,53 @@ pub fn XOR(rd: u8, rs1: u8, rs2: u8) -> u32 {
 
 pub fn XORI(rd: u8, rs1: u8, imm: u32) -> u32 {
     encode_type_i(0b0010011, rd, 4, rs1, imm)
+}
+
+// I64
+pub fn ADDIW(rd: u8, rs1: u8, imm: u32) -> u32 {
+    encode_type_i(0b0011011, rd, 0, rs1, imm)
+}
+
+pub fn ADDW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 0, rs1, rs2, 0)
+}
+
+pub fn LD(rd: u8, rs1: u8, imm: u32) -> u32 {
+    encode_type_i(0b0000011, rd, 3, rs1, imm)
+}
+
+pub fn LWU(rd: u8, rs1: u8, imm: u32) -> u32 {
+    encode_type_i(0b0000011, rd, 6, rs1, imm)
+}
+
+pub fn SD(rs1: u8, rs2: u8, imm: u32) -> u32 {
+    encode_type_s(0b0100011, 3, rs1, rs2, imm)
+}
+
+pub fn SLLIW(rd: u8, rs1: u8, shamt: u8) -> u32 {
+    encode_type_r(0b0011011, rd, 1, rs1, shamt, 0)
+}
+
+pub fn SLLW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 1, rs1, rs2, 0)
+}
+
+pub fn SRAIW(rd: u8, rs1: u8, shamt: u8) -> u32 {
+    encode_type_r(0b0011011, rd, 5, rs1, shamt, 0b0100000)
+}
+
+pub fn SRAW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 5, rs1, rs2, 0b0100000)
+}
+
+pub fn SRLIW(rd: u8, rs1: u8, shamt: u8) -> u32 {
+    encode_type_r(0b0011011, rd, 5, rs1, shamt, 0)
+}
+
+pub fn SRLW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 5, rs1, rs2, 0)
+}
+
+pub fn SUBW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 0, rs1, rs2, 0b0100000)
 }

@@ -1,7 +1,7 @@
 use dyriscvic::rvi::assemble::*;
 
 #[test]
-fn assemble() {
+fn assemble_i32() {
     let add = ADD(1, 2, 3);
     let add_ = 0b0000000_00011_00010_000_00001_0110011u32;
     assert_eq!(add, add_, "ADD {:X} {:X}", add, add_);
@@ -156,4 +156,55 @@ fn assemble() {
     let xori = XORI(3, 4, 0b111110011111);
     let xori_ = 0b111110011111_00100_100_00011_0010011u32;
     assert_eq!(xori, xori_, "XORI {:X} {:X}", xori, xori_);
+}
+
+#[test]
+fn assemble_i64() {
+    let addiw = ADDIW(1, 2, 1);
+    let addiw_ = 0b000000000001_00010_000_00001_0011011u32;
+    assert_eq!(addiw, addiw_, "ADDIW {:X} {:X}", addiw, addiw_);
+
+    let addw = ADDW(3, 4, 5);
+    let addw_ = 0b0000000_00101_00100_000_00011_0111011u32;
+    assert_eq!(addw, addw_, "ADDW {:X} {:X}", addw, addw_);
+
+    let ld = LD(6, 7, -2i32 as u32);
+    let ld_ = 0b111111111110_00111_011_00110_0000011u32;
+    assert_eq!(ld, ld_, "LD {:X} {:X}", ld, ld_);
+
+    let lwu = LWU(8, 9, -3i32 as u32);
+    let lwu_ = 0b111111111101_01001_110_01000_0000011u32;
+    assert_eq!(lwu, lwu_, "LWU {:X} {:X}", lwu, lwu_);
+
+    let sd = SD(10, 11, -4i32 as u32);
+    let sd_ = 0b1111111_01011_01010_011_11100_0100011u32;
+    assert_eq!(sd, sd_, "SD {:X} {:X}", sd, sd_);
+
+    let slliw = SLLIW(12, 13, 1);
+    let slliw_ = 0b0000000_00001_01101_001_01100_0011011u32;
+    assert_eq!(slliw, slliw_, "SLLIW {:X} {:X}", slliw, slliw_);
+
+    let sllw = SLLW(14, 15, 16);
+    let sllw_ = 0b0000000_10000_01111_001_01110_0111011u32;
+    assert_eq!(sllw, sllw_, "SLLW {:X} {:X}", sllw, sllw_);
+
+    let sraiw = SRAIW(17, 18, 2);
+    let sraiw_ = 0b0100000_00010_10010_101_10001_0011011u32;
+    assert_eq!(sraiw, sraiw_, "SRAIW {:X} {:X}", sraiw, sraiw_);
+
+    let sraw = SRAW(19, 20, 21);
+    let sraw_ = 0b0100000_10101_10100_101_10011_0111011u32;
+    assert_eq!(sraw, sraw_, "SRAW {:X} {:X}", sraw, sraw_);
+
+    let srliw = SRLIW(22, 23, 3);
+    let srliw_ = 0b0000000_00011_10111_101_10110_0011011u32;
+    assert_eq!(srliw, srliw_, "SRLIW {:X} {:X}", srliw, srliw_);
+
+    let srlw = SRLW(24, 25, 26);
+    let srlw_ = 0b0000000_11010_11001_101_11000_0111011u32;
+    assert_eq!(srlw, srlw_, "SRLW {:X} {:X}", srlw, srlw_);
+
+    let subw = SUBW(27, 28, 29);
+    let subw_ = 0b0100000_11101_11100_000_11011_0111011u32;
+    assert_eq!(subw, subw_, "SUBW {:X} {:X}", subw, subw_);
 }

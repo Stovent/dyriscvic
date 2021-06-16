@@ -6,13 +6,27 @@ Short-term goal is to have an interpreter of as many extensions as possible. Lon
 
 ## Compatibility
 
+### RV32
+
+| Extension | Assembler | Disassembler |     Interpreter     |
+| :-------: | :-------: | :----------: | :-----------------: |
+|     A     |           |              |                     |
+|     C     |           |              |                     |
+|     D     |           |              |                     |
+|     F     |           |              |                     |
+|     I     |   v2.1    |              | V2.1 (except FENCE) |
+|     M     |           |              |                     |
+|   Zicsr   |           |              |                     |
+
+### RV64
+
 | Extension | Assembler | Disassembler | Interpreter |
 | :-------: | :-------: | :----------: | :---------: |
 |     A     |           |              |             |
 |     C     |           |              |             |
 |     D     |           |              |             |
 |     F     |           |              |             |
-|     I     |   v2.1    |              | V2.1 (except FENCE) |
+|     I     |   V2.1    |              |             |
 |     M     |           |              |             |
 |   Zicsr   |           |              |             |
 
