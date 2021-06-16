@@ -14,7 +14,7 @@ Short-term goal is to have an interpreter of as many extensions as possible. Lon
 |     C     |           |              |                     |
 |     D     |           |              |                     |
 |     F     |           |              |                     |
-|     I     |   v2.1    |              | V2.1 (except FENCE) |
+|     I     |   v2.1    |     v2.1     | v2.1 (except FENCE) |
 |     M     |           |              |                     |
 |   Zicsr   |           |              |                     |
 
@@ -26,7 +26,7 @@ Short-term goal is to have an interpreter of as many extensions as possible. Lon
 |     C     |           |              |             |
 |     D     |           |              |             |
 |     F     |           |              |             |
-|     I     |   V2.1    |              |             |
+|     I     |   v2.1    |     v2.1     |             |
 |     M     |           |              |             |
 |   Zicsr   |           |              |             |
 

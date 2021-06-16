@@ -7,6 +7,15 @@ pub mod execute;
 use crate::common::{*, instruction::*, isa::*, types::*};
 use crate::public::ExecutionEnvironmentInterface;
 
+/// Configuration of the RISC-V hart.
+#[derive(Clone, Debug)]
+pub struct RVConfig {
+    /// The list of ISA extensions.
+    pub ext: String,
+    /// Used by the disassembler. See [`get_integer_register_name`].
+    pub abi_name: bool,
+}
+
 /// Struct representing a RISC-V hart.
 ///
 /// `U` is the program counter type (u32 or u64).
@@ -21,11 +30,11 @@ pub struct RVI<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<
 
     /// The instruction currently being executed.
     pub inst: Instruction<U, S>,
-    /// The list of ISA extensions.
-    pub ext: String,
+    /// Configuration of the context.
+    pub config: RVConfig,
     eei: EEI,
     execute: [fn(&mut Self); ISA::_SIZE as usize],
-    disassemble: [fn(Instruction<U, S>) -> String; ISA::_SIZE as usize],
+    disassemble: [fn(Instruction<U, S>, abi_name: bool) -> String; ISA::_SIZE as usize],
 }
 
 /// Convenient alias defining a RV32 hart.
@@ -44,12 +53,12 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
     /// `pc` is the initial program counter value.
     /// `ext` is a string containing the ISA extensions to be used.
     /// `eei` is the execution environment interface.
-    pub fn new(x: [S; N], pc: U, ext: &str, eei: EEI) -> Self {
+    pub fn new(x: [S; N], pc: U, config: RVConfig, eei: EEI) -> Self {
         let mut core = Self {
             x,
             pc,
             inst: Instruction::<U, S>::empty(ISA::UNKNOWN, 0u16.into(), 0),
-            ext: String::from(ext).to_ascii_uppercase(),
+            config,
             eei,
             execute: [RVI::UNKNOWN; ISA::_SIZE as usize],
             disassemble: [RVI::<U, S, EEI, N>::disassemble_UNKNOWN; ISA::_SIZE as usize],
@@ -61,7 +70,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
     }
 
     fn is_misaligned(&self, val: U) -> bool {
-        if self.ext.contains('C') {
+        if self.config.ext.contains('C') {
             return !is_even(val);
         } else {
             return val & 0b11u32.into() != 0u32.into();
@@ -80,7 +89,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
                 self.inst = Instruction::<U, S>::from_opcode_32(pc, opcode);
 
                 #[cfg(debug_assertions)]
-                println!("Instruction: {}", self.disassemble[self.inst.inst as usize](self.inst));
+                println!("Instruction: {}", self.disassemble[self.inst.inst as usize](self.inst, true));
 
                 self.execute[self.inst.inst as usize](self);
             },

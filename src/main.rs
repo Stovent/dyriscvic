@@ -51,7 +51,12 @@ fn main() {
     eei.memory[0..4].copy_from_slice(&u32_to_slice_le(assemble::ANDI(1, 0, 0))); // ANDI x1, x0, 0
     eei.memory[4..8].copy_from_slice(&u32_to_slice_le(assemble::JAL(0, -4i32 as u32))); // JAL x0, -4
 
-    let mut rv32i = RV32I::new([0; 32], 0, "", eei);
+    let conf: RVConfig = RVConfig {
+        ext: String::from(""),
+        abi_name: true,
+    };
+
+    let mut rv32i = RV32I::new([0; 32], 0, conf, eei);
 
     for _ in 0..130_000_000 {
         rv32i.single_step();
