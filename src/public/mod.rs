@@ -11,6 +11,9 @@ pub trait MemoryAccess<ADDR> {
     /// Returns the word (32 bits) at the given address.
     fn get_word(&mut self, addr: ADDR) -> u32;
 
+    /// Returns the double-word (64 bits) at the given address.
+    fn get_double(&mut self, addr: ADDR) -> u64;
+
     /// Sets the given byte at the given address.
     fn set_byte(&mut self, addr: ADDR, data: u8);
 
@@ -19,6 +22,9 @@ pub trait MemoryAccess<ADDR> {
 
     /// Sets the given word (32 bits) at the given address.
     fn set_word(&mut self, addr: ADDR, data: u32);
+
+    /// Sets the given double-word (64 bits) at the given address.
+    fn set_double(&mut self, addr: ADDR, data: u64);
 
     /// Returns the 32-bits opcode at the given address.
     fn get_opcode_32(&mut self, addr: ADDR) -> u32;

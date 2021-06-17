@@ -1,7 +1,7 @@
 use crate::common::{isa::*, decoder::*, types::*};
 
 #[derive(Clone, Copy, Debug)]
-pub struct Instruction<U, S> {
+pub struct Instruction<U: Unsigned<S>, S: Signed<U>> {
     pub inst: ISA,
     pub pc: U,
 

@@ -112,8 +112,8 @@ pub fn SLL(rd: u8, rs1: u8, rs2: u8) -> u32 {
     encode_type_r(0b0110011, rd, 1, rs1, rs2, 0)
 }
 
-pub fn SLLI(rd: u8, rs1: u8, shamt: u8) -> u32 {
-    encode_type_r(0b0010011, rd, 1, rs1, shamt, 0)
+pub fn SLLI(rd: u8, rs1: u8, shamt: u32) -> u32 {
+    encode_type_i(0b0010011, rd, 1, rs1, shamt & 0x3F)
 }
 
 pub fn SLT(rd: u8, rs1: u8, rs2: u8) -> u32 {
@@ -136,16 +136,16 @@ pub fn SRA(rd: u8, rs1: u8, rs2: u8) -> u32 {
     encode_type_r(0b0110011, rd, 5, rs1, rs2, 0b0100000)
 }
 
-pub fn SRAI(rd: u8, rs1: u8, shamt: u8) -> u32 {
-    encode_type_r(0b0010011, rd, 5, rs1, shamt, 0b0100000)
+pub fn SRAI(rd: u8, rs1: u8, shamt: u32) -> u32 {
+    encode_type_i(0b0010011, rd, 5, rs1, 0x400u32 | (shamt & 0x3F))
 }
 
 pub fn SRL(rd: u8, rs1: u8, rs2: u8) -> u32 {
     encode_type_r(0b0110011, rd, 5, rs1, rs2, 0)
 }
 
-pub fn SRLI(rd: u8, rs1: u8, shamt: u8) -> u32 {
-    encode_type_r(0b0010011, rd, 5, rs1, shamt, 0)
+pub fn SRLI(rd: u8, rs1: u8, shamt: u32) -> u32 {
+    encode_type_i(0b0010011, rd, 5, rs1, shamt & 0x3F)
 }
 
 pub fn SUB(rd: u8, rs1: u8, rs2: u8) -> u32 {

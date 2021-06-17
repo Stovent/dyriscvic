@@ -18,6 +18,10 @@ impl MemoryAccess<u32> for ExecutionEnvironment {
         return (self.get_half(addr + 2) as u32) << 16 | self.get_half(addr) as u32;
     }
 
+    fn get_double(&mut self, addr: u32) -> u64 {
+        return (self.get_word(addr + 4) as u64) << 32 | self.get_word(addr) as u64;
+    }
+
     fn set_byte(&mut self, addr: u32, data: u8) {
         self.memory[addr as usize] = data;
     }
@@ -30,6 +34,11 @@ impl MemoryAccess<u32> for ExecutionEnvironment {
     fn set_word(&mut self, addr: u32, data: u32) {
         self.set_half(addr, data as u16);
         self.set_half(addr + 2, (data >> 16) as u16);
+    }
+
+    fn set_double(&mut self, addr: u32, data: u64) {
+        self.set_word(addr, data as u32);
+        self.set_word(addr + 4, (data >> 32) as u32);
     }
 
     fn get_opcode_32(&mut self, addr: u32) -> u32 {
