@@ -47,28 +47,6 @@ pub type RV32I<EEI: ExecutionEnvironmentInterface<u32>> = RV32<EEI, 32>;
 pub type RV64I<EEI: ExecutionEnvironmentInterface<u64>> = RVI<u64, i64, EEI, 32>;
 
 impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const N: usize> RVI<U, S, EEI, N> {
-    /// Creates a new hart.
-    ///
-    /// `x` is the initial state of the registers. `x[0]` will be set to 0 anyway. and must stay at 0.
-    /// `pc` is the initial program counter value.
-    /// `ext` is a string containing the ISA extensions to be used.
-    /// `eei` is the execution environment interface.
-    pub fn new(x: [S; N], pc: U, config: RVConfig, eei: EEI) -> Self {
-        let mut core = Self {
-            x,
-            pc,
-            inst: Instruction::<U, S>::empty(ISA::UNKNOWN, 0u16.into(), 0),
-            config,
-            eei,
-            execute: [RVI::UNKNOWN; ISA::_SIZE as usize],
-            disassemble: [RVI::<U, S, EEI, N>::disassemble_UNKNOWN; ISA::_SIZE as usize],
-        };
-        core.x[0] = 0.into();
-        core.load_execute_i32();
-        core.load_disassemble_i32();
-        core
-    }
-
     fn is_misaligned(&self, val: U) -> bool {
         if self.config.ext.contains('C') {
             return !is_even(val);
@@ -89,11 +67,77 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
                 self.inst = Instruction::<U, S>::from_opcode_32(pc, opcode);
 
                 #[cfg(debug_assertions)]
-                println!("Instruction: {}", self.disassemble[self.inst.inst as usize](self.inst, true));
+                println!("Instruction: {}", self.disassemble[self.inst.inst as usize](self.inst, self.config.abi_name));
 
                 self.execute[self.inst.inst as usize](self);
             },
             _ => println!("Unknown opcode {:#X} at {:#X}", opcode, pc),
         };
+    }
+}
+
+impl<EEI: ExecutionEnvironmentInterface<u32>, const N: usize> RV32<EEI, N> {
+    /// Creates a new RV32I/E hart.
+    ///
+    /// `x` is the initial state of the registers. `x[0]` will be set to 0 anyway. and must stay at 0.
+    /// `pc` is the initial program counter value.
+    /// `ext` is a string containing the ISA extensions to be used.
+    /// `eei` is the execution environment interface.
+    pub fn new(x: [i32; N], pc: u32, config: RVConfig, eei: EEI) -> Self {
+        let mut core = Self {
+            x,
+            pc,
+            inst: Instruction32::empty(ISA::UNKNOWN, 0u16.into(), 0),
+            config,
+            eei,
+            execute: [RVI::UNKNOWN; ISA::_SIZE as usize],
+            disassemble: [RV32::<EEI, N>::disassemble_UNKNOWN; ISA::_SIZE as usize],
+        };
+        core.x[0] = 0.into();
+        core.load_isa();
+        core
+    }
+}
+
+impl<EEI: ExecutionEnvironmentInterface<u64>> RV64I<EEI> {
+    /// Creates a new RV64I hart.
+    ///
+    /// `x` is the initial state of the registers. `x[0]` will be set to 0 anyway. and must stay at 0.
+    /// `pc` is the initial program counter value.
+    /// `ext` is a string containing the ISA extensions to be used.
+    /// `eei` is the execution environment interface.
+    pub fn new(x: [i64; 32], pc: u64, config: RVConfig, eei: EEI) -> Self {
+        let mut core = Self {
+            x,
+            pc,
+            inst: Instruction64::empty(ISA::UNKNOWN, 0u16.into(), 0),
+            config,
+            eei,
+            execute: [RVI::UNKNOWN; ISA::_SIZE as usize],
+            disassemble: [RV64I::<EEI>::disassemble_UNKNOWN; ISA::_SIZE as usize],
+        };
+        core.x[0] = 0.into();
+        core.load_isa();
+        core
+    }
+}
+
+trait LoadISA {
+    fn load_isa(&mut self);
+}
+
+impl<EEI: ExecutionEnvironmentInterface<u32>, const N: usize> LoadISA for RV32<EEI, N> {
+    fn load_isa(&mut self) {
+        self.load_execute_i32();
+        self.load_disassemble_i32();
+    }
+}
+
+impl<EEI: ExecutionEnvironmentInterface<u64>> LoadISA for RV64I<EEI> {
+    fn load_isa(&mut self) {
+        self.load_execute_i32();
+        self.load_disassemble_i32();
+        self.load_execute_i64();
+        self.load_disassemble_i64();
     }
 }
