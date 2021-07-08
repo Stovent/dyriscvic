@@ -45,36 +45,36 @@ impl AsUnsigned for i64 {
 }
 
 pub trait As {
-    fn as_byte(self) -> u8;
-    fn as_half(self) -> u16;
-    fn as_word(self) -> u32;
-    fn as_double(self) -> u64;
+    fn as_u8(self) -> u8;
+    fn as_u16(self) -> u16;
+    fn as_u32(self) -> u32;
+    fn as_u64(self) -> u64;
 }
 
 impl As for u32 {
-    fn as_byte(self) -> u8 { self as u8 }
-    fn as_half(self) -> u16 { self as u16 }
-    fn as_word(self) -> u32 { self }
-    fn as_double(self) -> u64 { self as u64 }
+    fn as_u8(self) -> u8 { self as u8 }
+    fn as_u16(self) -> u16 { self as u16 }
+    fn as_u32(self) -> u32 { self }
+    fn as_u64(self) -> u64 { self as u64 }
 }
 
 impl As for i32 {
-    fn as_byte(self) -> u8 { self as u8 }
-    fn as_half(self) -> u16 { self as u16 }
-    fn as_word(self) -> u32 { self as u32 }
-    fn as_double(self) -> u64 { self as u64 }
+    fn as_u8(self) -> u8 { self as u8 }
+    fn as_u16(self) -> u16 { self as u16 }
+    fn as_u32(self) -> u32 { self as u32 }
+    fn as_u64(self) -> u64 { self as u64 }
 }
 
 impl As for u64 {
-    fn as_byte(self) -> u8 { self as u8 }
-    fn as_half(self) -> u16 { self as u16 }
-    fn as_word(self) -> u32 { self as u32 }
-    fn as_double(self) -> u64 { self }
+    fn as_u8(self) -> u8 { self as u8 }
+    fn as_u16(self) -> u16 { self as u16 }
+    fn as_u32(self) -> u32 { self as u32 }
+    fn as_u64(self) -> u64 { self }
 }
 
 impl As for i64 {
-    fn as_byte(self) -> u8 { self as u8 }
-    fn as_half(self) -> u16 { self as u16 }
-    fn as_word(self) -> u32 { self as u32 }
-    fn as_double(self) -> u64 { self as u64 }
+    fn as_u8(self) -> u8 { self as u8 }
+    fn as_u16(self) -> u16 { self as u16 }
+    fn as_u32(self) -> u32 { self as u32 }
+    fn as_u64(self) -> u64 { self as u64 }
 }

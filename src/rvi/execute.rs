@@ -147,7 +147,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = (self.eei.get_byte(addr) as i8).into();
+            self.x[self.inst.rd as usize] = (self.eei.get_8(addr) as i8).into();
         }
     }
 
@@ -156,7 +156,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = self.eei.get_byte(addr).into();
+            self.x[self.inst.rd as usize] = self.eei.get_8(addr).into();
         }
     }
 
@@ -165,7 +165,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = (self.eei.get_half(addr) as i16).into();
+            self.x[self.inst.rd as usize] = (self.eei.get_16(addr) as i16).into();
         }
     }
 
@@ -174,7 +174,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = self.eei.get_half(addr).into();
+            self.x[self.inst.rd as usize] = self.eei.get_16(addr).into();
         }
     }
 
@@ -189,7 +189,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
             self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = (self.eei.get_word(addr) as i32).into();
+            self.x[self.inst.rd as usize] = (self.eei.get_32(addr) as i32).into();
         }
     }
 
@@ -207,12 +207,12 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn SB(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        self.eei.set_byte(addr, self.x[self.inst.rs2 as usize].as_byte());
+        self.eei.set_8(addr, self.x[self.inst.rs2 as usize].as_u8());
     }
 
     fn SH(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        self.eei.set_half(addr, self.x[self.inst.rs2 as usize].as_half());
+        self.eei.set_16(addr, self.x[self.inst.rs2 as usize].as_u16());
     }
 
     fn SLL(&mut self) {
@@ -283,7 +283,7 @@ impl<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const 
 
     fn SW(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        self.eei.set_word(addr, self.x[self.inst.rs2 as usize].as_word());
+        self.eei.set_32(addr, self.x[self.inst.rs2 as usize].as_u32());
     }
 
     fn XOR(&mut self) {
@@ -306,13 +306,13 @@ impl<EEI: ExecutionEnvironmentInterface<u64>> I64 for RV64I<EEI> {
 
     fn ADDIW(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] + self.inst.imm).as_word() as i32).into();
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] + self.inst.imm).as_u32() as i32).into();
         }
     }
 
     fn ADDW(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] + self.x[self.inst.rs2 as usize]).as_word() as i32).into();
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] + self.x[self.inst.rs2 as usize]).as_u32() as i32).into();
         }
     }
 
@@ -321,7 +321,7 @@ impl<EEI: ExecutionEnvironmentInterface<u64>> I64 for RV64I<EEI> {
             self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = (self.eei.get_double(addr) as i64).into();
+            self.x[self.inst.rd as usize] = (self.eei.get_64(addr) as i64).into();
         }
     }
 
@@ -330,54 +330,54 @@ impl<EEI: ExecutionEnvironmentInterface<u64>> I64 for RV64I<EEI> {
             self.eei.trap(Traps::IllegalInstruction);
         } else {
             let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-            self.x[self.inst.rd as usize] = self.eei.get_word(addr).into();
+            self.x[self.inst.rd as usize] = self.eei.get_32(addr).into();
         }
     }
 
     fn SD(&mut self) {
         let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u();
-        self.eei.set_double(addr, self.x[self.inst.rs2 as usize].as_double());
+        self.eei.set_64(addr, self.x[self.inst.rs2 as usize].as_u64());
     }
 
     fn SLLIW(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] << (self.inst.imm & 0x1F)).as_word() as i32).into();
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] << (self.inst.imm & 0x1F)).as_u32() as i32).into();
         }
     }
 
     fn SLLW(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] << (self.x[self.inst.rs2 as usize] & 0x1F)).as_word() as i32).into();
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] << (self.x[self.inst.rs2 as usize] & 0x1F)).as_u32() as i32).into();
         }
     }
 
     fn SRAIW(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] >> (self.inst.imm & 0x1F)).as_word() as i32).into();
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] >> (self.inst.imm & 0x1F)).as_u32() as i32).into();
         }
     }
 
     fn SRAW(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] >> (self.x[self.inst.rs2 as usize] & 0x1F)).as_word() as i32).into();
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] >> (self.x[self.inst.rs2 as usize] & 0x1F)).as_u32() as i32).into();
         }
     }
 
     fn SRLIW(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = (((self.x[self.inst.rs1 as usize].as_u() >> (self.inst.imm.as_u() & 0x1F)).as_s()).as_word() as i32).into();
+            self.x[self.inst.rd as usize] = (((self.x[self.inst.rs1 as usize].as_u() >> (self.inst.imm.as_u() & 0x1F)).as_s()).as_u32() as i32).into();
         }
     }
 
     fn SRLW(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = (((self.x[self.inst.rs1 as usize].as_u() >> (self.x[self.inst.rs2 as usize].as_u() & 0x1F)).as_s()).as_word() as i32).into();
+            self.x[self.inst.rd as usize] = (((self.x[self.inst.rs1 as usize].as_u() >> (self.x[self.inst.rs2 as usize].as_u() & 0x1F)).as_s()).as_u32() as i32).into();
         }
     }
 
     fn SUBW(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] - self.x[self.inst.rs2 as usize]).as_word() as i32).into();
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] - self.x[self.inst.rs2 as usize]).as_u32() as i32).into();
         }
     }
 }

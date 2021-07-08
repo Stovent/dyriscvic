@@ -6,43 +6,43 @@ struct ExecutionEnvironment {
 }
 
 impl MemoryAccess<u32> for ExecutionEnvironment {
-    fn get_byte(&mut self, addr: u32) -> u8 {
+    fn get_8(&mut self, addr: u32) -> u8 {
         return self.memory[addr as usize];
     }
 
-    fn get_half(&mut self, addr: u32) -> u16 {
-        return (self.get_byte(addr + 1) as u16) << 8 | self.get_byte(addr) as u16;
+    fn get_16(&mut self, addr: u32) -> u16 {
+        return (self.get_8(addr + 1) as u16) << 8 | self.get_8(addr) as u16;
     }
 
-    fn get_word(&mut self, addr: u32) -> u32 {
-        return (self.get_half(addr + 2) as u32) << 16 | self.get_half(addr) as u32;
+    fn get_32(&mut self, addr: u32) -> u32 {
+        return (self.get_16(addr + 2) as u32) << 16 | self.get_16(addr) as u32;
     }
 
-    fn get_double(&mut self, addr: u32) -> u64 {
-        return (self.get_word(addr + 4) as u64) << 32 | self.get_word(addr) as u64;
+    fn get_64(&mut self, addr: u32) -> u64 {
+        return (self.get_32(addr + 4) as u64) << 32 | self.get_32(addr) as u64;
     }
 
-    fn set_byte(&mut self, addr: u32, data: u8) {
+    fn set_8(&mut self, addr: u32, data: u8) {
         self.memory[addr as usize] = data;
     }
 
-    fn set_half(&mut self, addr: u32, data: u16) {
-        self.set_byte(addr, data as u8);
-        self.set_byte(addr + 1, (data >> 8) as u8);
+    fn set_16(&mut self, addr: u32, data: u16) {
+        self.set_8(addr, data as u8);
+        self.set_8(addr + 1, (data >> 8) as u8);
     }
 
-    fn set_word(&mut self, addr: u32, data: u32) {
-        self.set_half(addr, data as u16);
-        self.set_half(addr + 2, (data >> 16) as u16);
+    fn set_32(&mut self, addr: u32, data: u32) {
+        self.set_16(addr, data as u16);
+        self.set_16(addr + 2, (data >> 16) as u16);
     }
 
-    fn set_double(&mut self, addr: u32, data: u64) {
-        self.set_word(addr, data as u32);
-        self.set_word(addr + 4, (data >> 32) as u32);
+    fn set_64(&mut self, addr: u32, data: u64) {
+        self.set_32(addr, data as u32);
+        self.set_32(addr + 4, (data >> 32) as u32);
     }
 
     fn get_opcode_32(&mut self, addr: u32) -> u32 {
-        return self.get_word(addr);
+        return self.get_32(addr);
     }
 }
 
