@@ -57,8 +57,8 @@ fn main() {
         memory: [0; 4096],
     };
 
-    eei.memory[0..4].copy_from_slice(&u32_to_slice_le(assemble::ANDI(1, 0, 0))); // ANDI x1, x0, 0
-    eei.memory[4..8].copy_from_slice(&u32_to_slice_le(assemble::JAL(0, -4i32 as u32))); // JAL x0, -4
+    eei.memory[0..4].copy_from_slice(&assembler::ANDI(1, 0, 0).as_slice_le()); // ANDI x1, x0, 0
+    eei.memory[4..8].copy_from_slice(&assembler::JAL(0, -4i32 as u32).as_slice_le()); // JAL x0, -4
 
     let conf: RVConfig = RVConfig {
         ext: String::from(""),

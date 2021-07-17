@@ -1,7 +1,7 @@
-use dyriscvic::rvi::assemble::*;
+use dyriscvic::rvi::assembler::*;
 
 #[test]
-fn assemble_i32() {
+fn assembler_i32() {
     let add = ADD(1, 2, 3);
     let add_ = 0b0000000_00011_00010_000_00001_0110011u32;
     assert_eq!(add, add_, "ADD {:X} {:X}", add, add_);
@@ -159,7 +159,7 @@ fn assemble_i32() {
 }
 
 #[test]
-fn assemble_i64() {
+fn assembler_i64() {
     let addiw = ADDIW(1, 2, 1);
     let addiw_ = 0b000000000001_00010_000_00001_0011011u32;
     assert_eq!(addiw, addiw_, "ADDIW {:X} {:X}", addiw, addiw_);

@@ -31,10 +31,22 @@ pub fn is_even<T: Int>(num: T) -> bool {
     return num & 1u16.into() == 0u16.into();
 }
 
-/// Converts a 32-bits word to a little-endian slice.
-/// `slice[0]` will have the LSB and `slice[3]` the MSB.
-pub fn u32_to_slice_le(data: u32) -> [u8; 4] {
-    [data as u8, (data >> 8) as u8, (data >> 16) as u8, (data >> 24) as u8]
+/// Converts u16 and u32 to byte slices, in little-endian.
+/// `slice[0]` will have the LSB and `slice[N - 1]` the MSB.
+pub trait AsSlice<const N: usize> {
+    fn as_slice_le(self) -> [u8; N];
+}
+
+impl AsSlice<2> for u16 {
+    fn as_slice_le(self) -> [u8; 2] {
+        [self as u8, (self >> 8) as u8]
+    }
+}
+
+impl AsSlice<4> for u32 {
+    fn as_slice_le(self) -> [u8; 4] {
+        [self as u8, (self >> 8) as u8, (self >> 16) as u8, (self >> 24) as u8]
+    }
 }
 
 /// Get the integer register ABI name associated with its number.

@@ -1,8 +1,8 @@
 //! The core module, containing the structs, assembler, disassembler and interpreter.
 
-pub mod assemble;
-pub mod disassemble;
-pub mod execute;
+pub mod assembler;
+pub mod disassembler;
+mod interpreter;
 
 use crate::common::{*, instruction::*, isa::*, types::*};
 use crate::public::ExecutionEnvironmentInterface;
@@ -12,7 +12,7 @@ use crate::public::ExecutionEnvironmentInterface;
 pub struct RVConfig {
     /// The list of ISA extensions.
     pub ext: String,
-    /// Used by the disassembler. See [`get_integer_register_name`].
+    /// Used by the disassembler. See [`get_x_register_name`] and [`get_f_register_name`].
     pub abi_name: bool,
 }
 
