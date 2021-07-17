@@ -1,6 +1,10 @@
 [package]
 name = "dyriscvic"
 version = "0.1.0"
+description = "A RISC-V assembler, disassembler, interpreter and JIT compiler in Rust."
+repository = "https://github.com/Stovent/dyriscvic"
+keywords = ["riscv", "risc-v", "emulator", "interpreter", "jit"]
+categories = ["compilers", "emulators"]
 edition = "2018"
 
 [profile.release]
