@@ -7,6 +7,9 @@ keywords = ["riscv", "risc-v", "emulator", "interpreter", "jit"]
 categories = ["compilers", "emulators"]
 edition = "2018"
 
+[profile.dev]
+overflow-checks = false
+
 [profile.release]
 debug = false
 debug-assertions = false

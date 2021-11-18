@@ -1,9 +1,11 @@
-use crate::common::{instruction::*, types::*};
+//! Instruction set stuff.
+
+use crate::common::instruction::*;
 use crate::public::*;
 use crate::rvi::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum ISA {
+pub enum Isa {
     UNKNOWN,
 
     ADD, // I32
@@ -63,48 +65,68 @@ pub enum ISA {
     _SIZE, // used internally by dyriscvic, not a real instruction
 }
 
-pub trait I32<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const N: usize> {
-    const EXECUTE_I32: [fn(&mut RVI<U, S, EEI, N>); 40] = [
-        RVI::<U, S, EEI, N>::ADD,
-        RVI::<U, S, EEI, N>::ADDI,
-        RVI::<U, S, EEI, N>::AND,
-        RVI::<U, S, EEI, N>::ANDI,
-        RVI::<U, S, EEI, N>::AUIPC,
-        RVI::<U, S, EEI, N>::BEQ,
-        RVI::<U, S, EEI, N>::BGE,
-        RVI::<U, S, EEI, N>::BGEU,
-        RVI::<U, S, EEI, N>::BLT,
-        RVI::<U, S, EEI, N>::BLTU,
-        RVI::<U, S, EEI, N>::BNE,
-        RVI::<U, S, EEI, N>::EBREAK,
-        RVI::<U, S, EEI, N>::ECALL,
-        RVI::<U, S, EEI, N>::FENCE,
-        RVI::<U, S, EEI, N>::JAL,
-        RVI::<U, S, EEI, N>::JALR,
-        RVI::<U, S, EEI, N>::LB,
-        RVI::<U, S, EEI, N>::LBU,
-        RVI::<U, S, EEI, N>::LH,
-        RVI::<U, S, EEI, N>::LHU,
-        RVI::<U, S, EEI, N>::LUI,
-        RVI::<U, S, EEI, N>::LW,
-        RVI::<U, S, EEI, N>::OR,
-        RVI::<U, S, EEI, N>::ORI,
-        RVI::<U, S, EEI, N>::SB,
-        RVI::<U, S, EEI, N>::SH,
-        RVI::<U, S, EEI, N>::SLL,
-        RVI::<U, S, EEI, N>::SLLI,
-        RVI::<U, S, EEI, N>::SLT,
-        RVI::<U, S, EEI, N>::SLTI,
-        RVI::<U, S, EEI, N>::SLTIU,
-        RVI::<U, S, EEI, N>::SLTU,
-        RVI::<U, S, EEI, N>::SRA,
-        RVI::<U, S, EEI, N>::SRAI,
-        RVI::<U, S, EEI, N>::SRL,
-        RVI::<U, S, EEI, N>::SRLI,
-        RVI::<U, S, EEI, N>::SUB,
-        RVI::<U, S, EEI, N>::SW,
-        RVI::<U, S, EEI, N>::XOR,
-        RVI::<U, S, EEI, N>::XORI,
+/// This struct is meant to built a constexpr look-up table for all the ISA.
+pub struct IsaEntry<EEI: ExecutionEnvironmentInterface> {
+    /// The ISA itself.
+    pub isa: Isa,
+    /// The decoding instruction.
+    pub decoder: fn(Isa, u64, u32) -> Instruction,
+    /// The execute method.
+    pub execute: fn(&mut RV64I<EEI>),
+    // /// The disassemble method.
+    // pub disassemble: fn(Instruction, bool) -> String,
+}
+
+// impl<EEI: ExecutionEnvironmentInterface> Isa {
+//     /// Maps an Isa to its associated decoding, executing and disassembling functions.
+//     pub const ISA_LUT: [IsaEntry<EEI>; 2] = [
+//         IsaEntry { isa: Isa::UNKNOWN, execute: RV64I::UNKNOWN, decoder: Instruction::empty },
+//         IsaEntry { isa: Isa::ADD, execute: RV64I::ADD, decoder: Instruction::decode_type_r },
+//     ];
+// }
+
+pub trait I32<EEI: ExecutionEnvironmentInterface> {
+    const EXECUTE_I32: [fn(&mut RV64I<EEI>); 40] = [
+        RV64I::<EEI>::ADD,
+        RV64I::<EEI>::ADDI,
+        RV64I::<EEI>::AND,
+        RV64I::<EEI>::ANDI,
+        RV64I::<EEI>::AUIPC,
+        RV64I::<EEI>::BEQ,
+        RV64I::<EEI>::BGE,
+        RV64I::<EEI>::BGEU,
+        RV64I::<EEI>::BLT,
+        RV64I::<EEI>::BLTU,
+        RV64I::<EEI>::BNE,
+        RV64I::<EEI>::EBREAK,
+        RV64I::<EEI>::ECALL,
+        RV64I::<EEI>::FENCE,
+        RV64I::<EEI>::JAL,
+        RV64I::<EEI>::JALR,
+        RV64I::<EEI>::LB,
+        RV64I::<EEI>::LBU,
+        RV64I::<EEI>::LH,
+        RV64I::<EEI>::LHU,
+        RV64I::<EEI>::LUI,
+        RV64I::<EEI>::LW,
+        RV64I::<EEI>::OR,
+        RV64I::<EEI>::ORI,
+        RV64I::<EEI>::SB,
+        RV64I::<EEI>::SH,
+        RV64I::<EEI>::SLL,
+        RV64I::<EEI>::SLLI,
+        RV64I::<EEI>::SLT,
+        RV64I::<EEI>::SLTI,
+        RV64I::<EEI>::SLTIU,
+        RV64I::<EEI>::SLTU,
+        RV64I::<EEI>::SRA,
+        RV64I::<EEI>::SRAI,
+        RV64I::<EEI>::SRL,
+        RV64I::<EEI>::SRLI,
+        RV64I::<EEI>::SUB,
+        RV64I::<EEI>::SW,
+        RV64I::<EEI>::XOR,
+        RV64I::<EEI>::XORI,
     ];
     fn load_execute_i32(&mut self);
     fn UNKNOWN(&mut self);
@@ -150,153 +172,89 @@ pub trait I32<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U
     fn XORI(&mut self);
 }
 
-pub trait DisassembleI32<U: Unsigned<S>, S: Signed<U>, EEI: ExecutionEnvironmentInterface<U>, const N: usize> {
-    const DISASSEMBLE_I32: [fn(Instruction<U, S>, bool) -> String; 40] = [
-        RVI::<U, S, EEI, N>::disassemble_ADD,
-        RVI::<U, S, EEI, N>::disassemble_ADDI,
-        RVI::<U, S, EEI, N>::disassemble_AND,
-        RVI::<U, S, EEI, N>::disassemble_ANDI,
-        RVI::<U, S, EEI, N>::disassemble_AUIPC,
-        RVI::<U, S, EEI, N>::disassemble_BEQ,
-        RVI::<U, S, EEI, N>::disassemble_BGE,
-        RVI::<U, S, EEI, N>::disassemble_BGEU,
-        RVI::<U, S, EEI, N>::disassemble_BLT,
-        RVI::<U, S, EEI, N>::disassemble_BLTU,
-        RVI::<U, S, EEI, N>::disassemble_BNE,
-        RVI::<U, S, EEI, N>::disassemble_EBREAK,
-        RVI::<U, S, EEI, N>::disassemble_ECALL,
-        RVI::<U, S, EEI, N>::disassemble_FENCE,
-        RVI::<U, S, EEI, N>::disassemble_JAL,
-        RVI::<U, S, EEI, N>::disassemble_JALR,
-        RVI::<U, S, EEI, N>::disassemble_LB,
-        RVI::<U, S, EEI, N>::disassemble_LBU,
-        RVI::<U, S, EEI, N>::disassemble_LH,
-        RVI::<U, S, EEI, N>::disassemble_LHU,
-        RVI::<U, S, EEI, N>::disassemble_LUI,
-        RVI::<U, S, EEI, N>::disassemble_LW,
-        RVI::<U, S, EEI, N>::disassemble_OR,
-        RVI::<U, S, EEI, N>::disassemble_ORI,
-        RVI::<U, S, EEI, N>::disassemble_SB,
-        RVI::<U, S, EEI, N>::disassemble_SH,
-        RVI::<U, S, EEI, N>::disassemble_SLL,
-        RVI::<U, S, EEI, N>::disassemble_SLLI,
-        RVI::<U, S, EEI, N>::disassemble_SLT,
-        RVI::<U, S, EEI, N>::disassemble_SLTI,
-        RVI::<U, S, EEI, N>::disassemble_SLTIU,
-        RVI::<U, S, EEI, N>::disassemble_SLTU,
-        RVI::<U, S, EEI, N>::disassemble_SRA,
-        RVI::<U, S, EEI, N>::disassemble_SRAI,
-        RVI::<U, S, EEI, N>::disassemble_SRL,
-        RVI::<U, S, EEI, N>::disassemble_SRLI,
-        RVI::<U, S, EEI, N>::disassemble_SUB,
-        RVI::<U, S, EEI, N>::disassemble_SW,
-        RVI::<U, S, EEI, N>::disassemble_XOR,
-        RVI::<U, S, EEI, N>::disassemble_XORI,
+pub trait DisassembleI32<EEI: ExecutionEnvironmentInterface> {
+    const DISASSEMBLE_I32: [fn(Instruction, bool) -> String; 40] = [
+        RV64I::<EEI>::disassemble_ADD,
+        RV64I::<EEI>::disassemble_ADDI,
+        RV64I::<EEI>::disassemble_AND,
+        RV64I::<EEI>::disassemble_ANDI,
+        RV64I::<EEI>::disassemble_AUIPC,
+        RV64I::<EEI>::disassemble_BEQ,
+        RV64I::<EEI>::disassemble_BGE,
+        RV64I::<EEI>::disassemble_BGEU,
+        RV64I::<EEI>::disassemble_BLT,
+        RV64I::<EEI>::disassemble_BLTU,
+        RV64I::<EEI>::disassemble_BNE,
+        RV64I::<EEI>::disassemble_EBREAK,
+        RV64I::<EEI>::disassemble_ECALL,
+        RV64I::<EEI>::disassemble_FENCE,
+        RV64I::<EEI>::disassemble_JAL,
+        RV64I::<EEI>::disassemble_JALR,
+        RV64I::<EEI>::disassemble_LB,
+        RV64I::<EEI>::disassemble_LBU,
+        RV64I::<EEI>::disassemble_LH,
+        RV64I::<EEI>::disassemble_LHU,
+        RV64I::<EEI>::disassemble_LUI,
+        RV64I::<EEI>::disassemble_LW,
+        RV64I::<EEI>::disassemble_OR,
+        RV64I::<EEI>::disassemble_ORI,
+        RV64I::<EEI>::disassemble_SB,
+        RV64I::<EEI>::disassemble_SH,
+        RV64I::<EEI>::disassemble_SLL,
+        RV64I::<EEI>::disassemble_SLLI,
+        RV64I::<EEI>::disassemble_SLT,
+        RV64I::<EEI>::disassemble_SLTI,
+        RV64I::<EEI>::disassemble_SLTIU,
+        RV64I::<EEI>::disassemble_SLTU,
+        RV64I::<EEI>::disassemble_SRA,
+        RV64I::<EEI>::disassemble_SRAI,
+        RV64I::<EEI>::disassemble_SRL,
+        RV64I::<EEI>::disassemble_SRLI,
+        RV64I::<EEI>::disassemble_SUB,
+        RV64I::<EEI>::disassemble_SW,
+        RV64I::<EEI>::disassemble_XOR,
+        RV64I::<EEI>::disassemble_XORI,
     ];
     fn load_disassemble_i32(&mut self);
-    fn disassemble_UNKNOWN(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_ADD(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_ADDI(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_AND(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_ANDI(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_AUIPC(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_BEQ(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_BGE(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_BGEU(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_BLT(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_BLTU(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_BNE(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_EBREAK(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_ECALL(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_FENCE(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_JAL(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_JALR(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_LB(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_LBU(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_LH(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_LHU(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_LUI(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_LW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_OR(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_ORI(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SB(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SH(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SLL(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SLLI(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SLT(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SLTI(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SLTIU(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SLTU(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SRA(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SRAI(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SRL(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SRLI(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SUB(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_XOR(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_XORI(inst: Instruction<U, S>, abi_name: bool) -> String;
-}
-
-pub trait I64 {
-    fn load_execute_i64(&mut self);
-    fn ADDIW(&mut self);
-    fn ADDW(&mut self);
-    fn LD(&mut self);
-    fn LWU(&mut self);
-    fn SD(&mut self);
-    fn SLLIW(&mut self);
-    fn SLLW(&mut self);
-    fn SRAIW(&mut self);
-    fn SRAW(&mut self);
-    fn SRLIW(&mut self);
-    fn SRLW(&mut self);
-    fn SUBW(&mut self);
-}
-
-pub trait DisassembleI64<U: Unsigned<S>, S: Signed<U>> {
-    fn load_disassemble_i64(&mut self);
-    fn disassemble_ADDIW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_ADDW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_LD(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_LWU(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SD(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SLLIW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SLLW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SRAIW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SRAW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SRLIW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SRLW(inst: Instruction<U, S>, abi_name: bool) -> String;
-    fn disassemble_SUBW(inst: Instruction<U, S>, abi_name: bool) -> String;
-}
-
-impl<EEI: ExecutionEnvironmentInterface<u64>> RV64I<EEI> {
-    pub const EXECUTE_I64: [fn(&mut RV64I<EEI>); 12] = [
-        Self::ADDIW,
-        Self::ADDW,
-        Self::LD,
-        Self::LWU,
-        Self::SD,
-        Self::SLLIW,
-        Self::SLLW,
-        Self::SRAIW,
-        Self::SRAW,
-        Self::SRLIW,
-        Self::SRLW,
-        Self::SUBW,
-    ];
-
-    pub const DISASSEMBLE_I64: [fn(inst: Instruction64, abi_name: bool) -> String; 12] = [
-        Self::disassemble_ADDIW,
-        Self::disassemble_ADDW,
-        Self::disassemble_LD,
-        Self::disassemble_LWU,
-        Self::disassemble_SD,
-        Self::disassemble_SLLIW,
-        Self::disassemble_SLLW,
-        Self::disassemble_SRAIW,
-        Self::disassemble_SRAW,
-        Self::disassemble_SRLIW,
-        Self::disassemble_SRLW,
-        Self::disassemble_SUBW,
-    ];
+    fn disassemble_UNKNOWN(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_ADD(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_ADDI(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_AND(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_ANDI(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_AUIPC(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_BEQ(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_BGE(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_BGEU(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_BLT(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_BLTU(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_BNE(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_EBREAK(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_ECALL(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_FENCE(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_JAL(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_JALR(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_LB(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_LBU(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_LH(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_LHU(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_LUI(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_LW(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_OR(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_ORI(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SB(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SH(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SLL(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SLLI(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SLT(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SLTI(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SLTIU(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SLTU(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SRA(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SRAI(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SRL(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SRLI(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SUB(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_SW(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_XOR(inst: Instruction, abi_name: bool) -> String;
+    fn disassemble_XORI(inst: Instruction, abi_name: bool) -> String;
 }

@@ -3,35 +3,16 @@
 pub mod decoder;
 pub mod instruction;
 pub mod isa;
-pub mod types;
 
-pub use instruction::{Instruction, Instruction32, Instruction64};
-use types::*;
-
-/// Returns the width of the instruction word in bytes, 24 if greater than 192 bits.
-pub fn get_instruction_length(inst: u16) -> u16 {
-    if (inst & 0b11) != 0b11 {
-        2
-    } else if (inst & 0b1_1111) != 0b1_1111 {
-        4
-    } else if (inst & 0b11_1111) != 0b01_1111 {
-        6
-    } else if (inst & 0b111_1111) != 0b011_1111 {
-        8
-    } else if (inst & 0b0111_0000_0111_1111) != 0b0111_0000_0111_1111 {
-        let nnn = inst >> 12 & 0b111;
-        10 + 2 * nnn
-    } else {
-        24
-    }
-}
+pub use instruction::Instruction;
 
 /// Returns true if the given number is even, false if it odd.
-pub fn is_even<T: Int>(num: T) -> bool {
-    return num & 1u16.into() == 0u16.into();
+pub fn is_even(num: u64) -> bool {
+    return num & 1 == 0;
 }
 
 /// Converts u16 and u32 to byte slices, in little-endian.
+///
 /// `slice[0]` will have the LSB and `slice[N - 1]` the MSB.
 pub trait AsSlice<const N: usize> {
     fn as_slice_le(self) -> [u8; N];
@@ -49,7 +30,8 @@ impl AsSlice<4> for u32 {
     }
 }
 
-/// Get the integer register ABI name associated with its number.
+/// Get the integer register name associated with its number.
+///
 /// If `abi_name` is true, returns the ABI name as in table 25.1. Otherwise returns `x0`, `x1`, etc.
 pub fn get_x_register_name(reg: u8, abi_name: bool) -> String {
     if abi_name {
@@ -93,7 +75,8 @@ pub fn get_x_register_name(reg: u8, abi_name: bool) -> String {
     }
 }
 
-/// Get the floating point register ABI name associated with its number.
+/// Get the floating point register name associated with its number.
+///
 /// If `abi_name` is true, returns the ABI name as in table 25.1. Otherwise returns `f0`, `f1`, etc.
 pub fn get_f_register_name(reg: u8, abi_name: bool) -> String {
     if abi_name {
