@@ -3,6 +3,8 @@ use crate::common::isa::*;
 use crate::public::*;
 use crate::rvi::*;
 
+const SHIFT_IMM: i64 = 0x3F;
+
 impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     /// Executes a single intruction on the hart.
     pub fn single_step(&mut self) {
@@ -57,73 +59,73 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
 
     pub(crate) fn AUIPC(&mut self) {
         if self.inst.rd != 0 {
-            // self.x[self.inst.rd as usize] = self.inst.pc as i64 + self.inst.imm as i64;
+            self.x[self.inst.rd as usize] = self.inst.pc as i64 + self.inst.imm as i64;
         }
     }
 
     pub(crate) fn BEQ(&mut self) {
         if self.x[self.inst.rs1 as usize] == self.x[self.inst.rs2 as usize] {
-            // let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
-            // if self.is_misaligned(pc) {
-            //     self.eei.trap(Traps::InstructionAddressMisaligned);
-            // } else {
-            //     self.pc = pc;
-            // }
+            let pc = self.inst.pc + self.inst.imm as u64;
+            if self.is_misaligned(pc) {
+                self.eei.trap(Trap::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
     pub(crate) fn BGE(&mut self) {
         if self.x[self.inst.rs1 as usize] >= self.x[self.inst.rs2 as usize] {
-            // let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
-            // if self.is_misaligned(pc) {
-            //     self.eei.trap(Traps::InstructionAddressMisaligned);
-            // } else {
-            //     self.pc = pc;
-            // }
+            let pc = self.inst.pc + self.inst.imm as u64;
+            if self.is_misaligned(pc) {
+                self.eei.trap(Trap::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
     pub(crate) fn BGEU(&mut self) {
-        // if (self.x[self.inst.rs1 as usize].as_u()) >= (self.x[self.inst.rs2 as usize].as_u()) {
-        //     let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
-        //     if self.is_misaligned(pc) {
-        //         self.eei.trap(Traps::InstructionAddressMisaligned);
-        //     } else {
-        //         self.pc = pc;
-        //     }
-        // }
+        if (self.x[self.inst.rs1 as usize] as u64) >= (self.x[self.inst.rs2 as usize] as u64) {
+            let pc = self.inst.pc + self.inst.imm as u64;
+            if self.is_misaligned(pc) {
+                self.eei.trap(Trap::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
+        }
     }
 
     pub(crate) fn BLT(&mut self) {
         if self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize] {
-            // let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
-            // if self.is_misaligned(pc) {
-            //     self.eei.trap(Traps::InstructionAddressMisaligned);
-            // } else {
-            //     self.pc = pc;
-            // }
+            let pc = self.inst.pc + self.inst.imm as u64;
+            if self.is_misaligned(pc) {
+                self.eei.trap(Trap::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
     pub(crate) fn BLTU(&mut self) {
-        // if (self.x[self.inst.rs1 as usize].as_u()) < (self.x[self.inst.rs2 as usize].as_u()) {
-        //     let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
-        //     if self.is_misaligned(pc) {
-        //         self.eei.trap(Traps::InstructionAddressMisaligned);
-        //     } else {
-        //         self.pc = pc;
-        //     }
-        // }
+        if (self.x[self.inst.rs1 as usize] as u64) < (self.x[self.inst.rs2 as usize] as u64) {
+            let pc = self.inst.pc + self.inst.imm as u64;
+            if self.is_misaligned(pc) {
+                self.eei.trap(Trap::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
+        }
     }
 
     pub(crate) fn BNE(&mut self) {
         if self.x[self.inst.rs1 as usize] != self.x[self.inst.rs2 as usize] {
-            // let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
-            // if self.is_misaligned(pc) {
-            //     self.eei.trap(Traps::InstructionAddressMisaligned);
-            // } else {
-            //     self.pc = pc;
-            // }
+            let pc = self.inst.pc + self.inst.imm as u64;
+            if self.is_misaligned(pc) {
+                self.eei.trap(Trap::InstructionAddressMisaligned);
+            } else {
+                self.pc = pc;
+            }
         }
     }
 
@@ -136,6 +138,7 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     }
 
     pub(crate) fn FENCE(&mut self) {
+        // TODO
     }
 
     pub(crate) fn JAL(&mut self) {
@@ -151,50 +154,54 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     }
 
     pub(crate) fn JALR(&mut self) {
-        // let pc = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u() & 0xFFFF_FFFEu32.into();
-        // if self.is_misaligned(pc) {
-        //     self.eei.trap(Traps::InstructionAddressMisaligned);
-        // } else {
-        //     self.pc = pc;
-        //     if self.inst.rd != 0 {
-        //         self.x[self.inst.rd as usize] = self.inst.pc.as_s() + 4.into();
-        //     }
-        // }
+        let pc = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64 & !1;
+        if self.is_misaligned(pc) {
+            self.eei.trap(Trap::InstructionAddressMisaligned);
+        } else {
+            self.pc = pc;
+            if self.inst.rd != 0 {
+                self.x[self.inst.rd as usize] = self.inst.pc as i64 + 4;
+            }
+        }
     }
 
     pub(crate) fn LB(&mut self) {
-        if self.inst.rd == 0 {
-            self.eei.trap(Trap::IllegalInstruction);
-        } else {
-            // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
-            // self.x[self.inst.rd as usize] = (self.eei.get_8(addr) as i8).into();
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        let data = self.eei.get_8(addr) as i8 as i64;
+
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = data;
         }
     }
 
     pub(crate) fn LBU(&mut self) {
-        if self.inst.rd == 0 {
-            self.eei.trap(Trap::IllegalInstruction);
-        } else {
-            // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
-            // self.x[self.inst.rd as usize] = self.eei.get_8(addr).into();
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        let data = self.eei.get_8(addr) as i64;
+
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = data;
         }
     }
 
     pub(crate) fn LH(&mut self) {
-        if self.inst.rd == 0 {
-            self.eei.trap(Trap::IllegalInstruction);
-        } else {
-            // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
-            // self.x[self.inst.rd as usize] = (self.eei.get_16(addr) as i16).into();
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        let data = self.eei.get_16(addr) as i16 as i64;
+
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = data;
         }
     }
 
     pub(crate) fn LHU(&mut self) {
-        if self.inst.rd == 0 {
-            self.eei.trap(Trap::IllegalInstruction);
-        } else {
-            // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
-            // self.x[self.inst.rd as usize] = self.eei.get_16(addr).into();
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        let data = self.eei.get_16(addr) as i64;
+
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = data;
         }
     }
 
@@ -205,11 +212,12 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     }
 
     pub(crate) fn LW(&mut self) {
-        if self.inst.rd == 0 {
-            self.eei.trap(Trap::IllegalInstruction);
-        } else {
-            // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
-            // self.x[self.inst.rd as usize] = (self.eei.get_32(addr) as i32).into();
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        let data = self.eei.get_32(addr) as i32 as i64;
+
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = data;
         }
     }
 
@@ -226,72 +234,74 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     }
 
     pub(crate) fn SB(&mut self) {
-        // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
-        // self.eei.set_8(addr, self.x[self.inst.rs2 as usize].as_u8());
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        self.eei.set_8(addr, self.x[self.inst.rs2 as usize] as u8);
     }
 
     pub(crate) fn SH(&mut self) {
-        // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
-        // self.eei.set_16(addr, self.x[self.inst.rs2 as usize].as_u16());
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        self.eei.set_16(addr, self.x[self.inst.rs2 as usize] as u16);
     }
 
     pub(crate) fn SLL(&mut self) {
         if self.inst.rd != 0 {
-            // self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.x[self.inst.rs2 as usize] & 0x3F.into());
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.x[self.inst.rs2 as usize] & SHIFT_IMM);
         }
     }
 
     pub(crate) fn SLLI(&mut self) {
         if self.inst.rd != 0 {
-            // self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.inst.imm & 0x3F.into());
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.inst.imm as i64 & SHIFT_IMM);
         }
     }
 
     pub(crate) fn SLT(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize]).into();
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize]) as i64;
         }
     }
 
     pub(crate) fn SLTI(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.inst.imm as i64).into();
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.inst.imm as i64) as i64;
         }
     }
 
     pub(crate) fn SLTIU(&mut self) {
         if self.inst.rd != 0 {
-            // self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() < (self.inst.imm as i64).as_u()).into();
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as u64) < self.inst.imm as i64 as u64) as i64;
         }
     }
 
     pub(crate) fn SLTU(&mut self) {
         if self.inst.rd != 0 {
-            // self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() < self.x[self.inst.rs2 as usize].as_u()).into();
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as u64) < self.x[self.inst.rs2 as usize] as u64) as i64;
         }
     }
 
     pub(crate) fn SRA(&mut self) {
         if self.inst.rd != 0 {
-            // self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.x[self.inst.rs2 as usize] & 0x3F.into());
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.x[self.inst.rs2 as usize] & SHIFT_IMM);
         }
     }
 
     pub(crate) fn SRAI(&mut self) {
         if self.inst.rd != 0 {
-            // self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.inst.imm & 0x3Fi32.into());
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.inst.imm as i64 & SHIFT_IMM);
         }
     }
 
     pub(crate) fn SRL(&mut self) {
         if self.inst.rd != 0 {
-            // self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> (self.x[self.inst.rs2 as usize].as_u() & 0x3Fu32.into())).as_s();
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u64 >> (self.x[self.inst.rs2 as usize] & SHIFT_IMM) as u64) as i64;
         }
     }
 
     pub(crate) fn SRLI(&mut self) {
         if self.inst.rd != 0 {
-            // self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> (self.inst.imm.as_u() & 0x3Fu32.into())).as_s();
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u64 >> (self.inst.imm as u64 & SHIFT_IMM as u64)) as i64;
         }
     }
 
@@ -302,8 +312,9 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     }
 
     pub(crate) fn SW(&mut self) {
-        // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
-        // self.eei.set_32(addr, self.x[self.inst.rs2 as usize].as_u32());
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        self.eei.set_32(addr, self.x[self.inst.rs2 as usize] as u32);
     }
 
     pub(crate) fn XOR(&mut self) {
