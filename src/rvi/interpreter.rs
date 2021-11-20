@@ -3,7 +3,8 @@ use crate::common::isa::*;
 use crate::public::*;
 use crate::rvi::*;
 
-const SHIFT_IMM: i64 = 0x3F;
+const I64_SHIFT_MASK: i64 = 0x3F;
+const I32_SHIFT_MASK: i32 = 0x1F;
 
 impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     /// Executes a single intruction on the hart.
@@ -247,13 +248,13 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
 
     pub(crate) fn SLL(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.x[self.inst.rs2 as usize] & SHIFT_IMM);
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.x[self.inst.rs2 as usize] & I64_SHIFT_MASK);
         }
     }
 
     pub(crate) fn SLLI(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.inst.imm as i64 & SHIFT_IMM);
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.inst.imm as i64 & I64_SHIFT_MASK);
         }
     }
 
@@ -283,25 +284,25 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
 
     pub(crate) fn SRA(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.x[self.inst.rs2 as usize] & SHIFT_IMM);
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.x[self.inst.rs2 as usize] & I64_SHIFT_MASK);
         }
     }
 
     pub(crate) fn SRAI(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.inst.imm as i64 & SHIFT_IMM);
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.inst.imm as i64 & I64_SHIFT_MASK);
         }
     }
 
     pub(crate) fn SRL(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u64 >> (self.x[self.inst.rs2 as usize] & SHIFT_IMM) as u64) as i64;
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u64 >> (self.x[self.inst.rs2 as usize] & I64_SHIFT_MASK) as u64) as i64;
         }
     }
 
     pub(crate) fn SRLI(&mut self) {
         if self.inst.rd != 0 {
-            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u64 >> (self.inst.imm as u64 & SHIFT_IMM as u64)) as i64;
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u64 >> (self.inst.imm as u64 & I64_SHIFT_MASK as u64)) as i64;
         }
     }
 
@@ -330,27 +331,83 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     }
 
     // I64
-    pub(crate) fn ADDIW(&mut self) {}
+    pub(crate) fn ADDIW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] as i32 as i64 + self.inst.imm as i64;
+        }
+    }
 
-    pub(crate) fn ADDW(&mut self) {}
+    pub(crate) fn ADDW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] as i32 as i64 + self.x[self.inst.rs2 as usize] as i32 as i64;
+        }
+    }
 
-    pub(crate) fn LD(&mut self) {}
+    pub(crate) fn LD(&mut self) {
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        let data = self.eei.get_64(addr) as i64;
 
-    pub(crate) fn LWU(&mut self) {}
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = data;
+        }
+    }
 
-    pub(crate) fn SD(&mut self) {}
+    pub(crate) fn LWU(&mut self) {
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        let data = self.eei.get_32(addr) as i64;
 
-    pub(crate) fn SLLIW(&mut self) {}
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = data;
+        }
+    }
 
-    pub(crate) fn SLLW(&mut self) {}
+    pub(crate) fn SD(&mut self) {
+        // TODO: Loads and stores where the effective address is not naturally aligned to the referenced datatype have behavior dependent on the EEI.
+        let addr = self.x[self.inst.rs1 as usize] as u64 + self.inst.imm as u64;
+        self.eei.set_64(addr, self.x[self.inst.rs2 as usize] as u64);
+    }
 
-    pub(crate) fn SRAIW(&mut self) {}
+    pub(crate) fn SLLIW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as i32) << (self.inst.imm & I32_SHIFT_MASK)) as i64;
+        }
+    }
 
-    pub(crate) fn SRAW(&mut self) {}
+    pub(crate) fn SLLW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as i32) << (self.x[self.inst.rs2 as usize] as i32 & I32_SHIFT_MASK)) as i64;
+        }
+    }
 
-    pub(crate) fn SRLIW(&mut self) {}
+    pub(crate) fn SRAIW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as i32 >> (self.inst.imm & I32_SHIFT_MASK)) as i64;
+        }
+    }
 
-    pub(crate) fn SRLW(&mut self) {}
+    pub(crate) fn SRAW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as i32 >> (self.x[self.inst.rs2 as usize] as i32 & I32_SHIFT_MASK)) as i64;
+        }
+    }
 
-    pub(crate) fn SUBW(&mut self) {}
+    pub(crate) fn SRLIW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u32 >> (self.inst.imm as u32 & I32_SHIFT_MASK as u32)) as i64;
+        }
+    }
+
+    pub(crate) fn SRLW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u32 >> (self.x[self.inst.rs2 as usize] as u32 & I32_SHIFT_MASK as u32)) as i64;
+        }
+    }
+
+    pub(crate) fn SUBW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] as i32 as i64 - self.x[self.inst.rs2 as usize] as i32 as i64;
+        }
+    }
 }
