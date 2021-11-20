@@ -11,60 +11,57 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
         let opcode = self.eei.get_opcode_32(pc); // TODO: instruction-address-misaligned
         let inst_size = get_instruction_length(opcode as u16);
         match inst_size {
-//            2 => if self.ext.contains('C'),
             4 => {
-                self.inst = Instruction::from_opcode_32(pc, opcode);
+                let isa = Isa::from_opcode_32(opcode);
+                let entry = &self.isa[isa as usize];
+                self.inst = (entry.decoder)(isa, pc, opcode);
 
-                // #[cfg(debug_assertions)]
-                // println!("Instruction: {}", self.disassemble[self.inst.inst as usize](self.inst, self.config.abi_name));
+                #[cfg(debug_assertions)]
+                println!("Instruction: {}", (entry.disassemble)(self.inst, self.config.abi_name));
 
-                self.execute[self.inst.inst as usize](self);
+                (entry.execute)(self);
             },
             _ => println!("Unknown opcode {:#X} at {:#X}", opcode, pc),
         };
     }
 }
 
-impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
-    fn load_execute_i32(&mut self) {
-        self.execute[Isa::ADD as usize..=Isa::XORI as usize].copy_from_slice(&RV64I::<EEI>::EXECUTE_I32);
-    }
-
-    fn UNKNOWN(&mut self) {
+impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
+    pub(crate) fn UNKNOWN(&mut self) {
         self.eei.trap(Trap::IllegalInstruction);
     }
 
-    fn ADD(&mut self) {
+    pub(crate) fn ADD(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] + self.x[self.inst.rs2 as usize];
         }
     }
 
-    fn ADDI(&mut self) {
+    pub(crate) fn ADDI(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] + self.inst.imm as i64;
         }
     }
 
-    fn AND(&mut self) {
+    pub(crate) fn AND(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] & self.x[self.inst.rs2 as usize];
         }
     }
 
-    fn ANDI(&mut self) {
+    pub(crate) fn ANDI(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] & self.inst.imm as i64;
         }
     }
 
-    fn AUIPC(&mut self) {
+    pub(crate) fn AUIPC(&mut self) {
         if self.inst.rd != 0 {
             // self.x[self.inst.rd as usize] = self.inst.pc as i64 + self.inst.imm as i64;
         }
     }
 
-    fn BEQ(&mut self) {
+    pub(crate) fn BEQ(&mut self) {
         if self.x[self.inst.rs1 as usize] == self.x[self.inst.rs2 as usize] {
             // let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
             // if self.is_misaligned(pc) {
@@ -75,7 +72,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn BGE(&mut self) {
+    pub(crate) fn BGE(&mut self) {
         if self.x[self.inst.rs1 as usize] >= self.x[self.inst.rs2 as usize] {
             // let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
             // if self.is_misaligned(pc) {
@@ -86,7 +83,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn BGEU(&mut self) {
+    pub(crate) fn BGEU(&mut self) {
         // if (self.x[self.inst.rs1 as usize].as_u()) >= (self.x[self.inst.rs2 as usize].as_u()) {
         //     let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
         //     if self.is_misaligned(pc) {
@@ -97,7 +94,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         // }
     }
 
-    fn BLT(&mut self) {
+    pub(crate) fn BLT(&mut self) {
         if self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize] {
             // let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
             // if self.is_misaligned(pc) {
@@ -108,7 +105,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn BLTU(&mut self) {
+    pub(crate) fn BLTU(&mut self) {
         // if (self.x[self.inst.rs1 as usize].as_u()) < (self.x[self.inst.rs2 as usize].as_u()) {
         //     let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
         //     if self.is_misaligned(pc) {
@@ -119,7 +116,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         // }
     }
 
-    fn BNE(&mut self) {
+    pub(crate) fn BNE(&mut self) {
         if self.x[self.inst.rs1 as usize] != self.x[self.inst.rs2 as usize] {
             // let pc = (self.inst.pc.as_s() + self.inst.imm as i64).as_u();
             // if self.is_misaligned(pc) {
@@ -130,18 +127,18 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn EBREAK(&mut self) {
+    pub(crate) fn EBREAK(&mut self) {
         self.eei.trap(Trap::Breakpoint);
     }
 
-    fn ECALL(&mut self) {
+    pub(crate) fn ECALL(&mut self) {
         self.eei.trap(Trap::SystemCall);
     }
 
-    fn FENCE(&mut self) {
+    pub(crate) fn FENCE(&mut self) {
     }
 
-    fn JAL(&mut self) {
+    pub(crate) fn JAL(&mut self) {
         let pc = self.inst.pc + self.inst.imm as u64;
         if self.is_misaligned(pc) {
             self.eei.trap(Trap::InstructionAddressMisaligned);
@@ -153,7 +150,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn JALR(&mut self) {
+    pub(crate) fn JALR(&mut self) {
         // let pc = (self.x[self.inst.rs1 as usize] + self.inst.imm).as_u() & 0xFFFF_FFFEu32.into();
         // if self.is_misaligned(pc) {
         //     self.eei.trap(Traps::InstructionAddressMisaligned);
@@ -165,7 +162,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         // }
     }
 
-    fn LB(&mut self) {
+    pub(crate) fn LB(&mut self) {
         if self.inst.rd == 0 {
             self.eei.trap(Trap::IllegalInstruction);
         } else {
@@ -174,7 +171,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn LBU(&mut self) {
+    pub(crate) fn LBU(&mut self) {
         if self.inst.rd == 0 {
             self.eei.trap(Trap::IllegalInstruction);
         } else {
@@ -183,7 +180,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn LH(&mut self) {
+    pub(crate) fn LH(&mut self) {
         if self.inst.rd == 0 {
             self.eei.trap(Trap::IllegalInstruction);
         } else {
@@ -192,7 +189,7 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn LHU(&mut self) {
+    pub(crate) fn LHU(&mut self) {
         if self.inst.rd == 0 {
             self.eei.trap(Trap::IllegalInstruction);
         } else {
@@ -201,13 +198,13 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn LUI(&mut self) {
+    pub(crate) fn LUI(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.inst.imm as i64;
         }
     }
 
-    fn LW(&mut self) {
+    pub(crate) fn LW(&mut self) {
         if self.inst.rd == 0 {
             self.eei.trap(Trap::IllegalInstruction);
         } else {
@@ -216,108 +213,133 @@ impl<EEI: ExecutionEnvironmentInterface> I32<EEI> for RV64I<EEI> {
         }
     }
 
-    fn OR(&mut self) {
+    pub(crate) fn OR(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] | self.x[self.inst.rs2 as usize];
         }
     }
 
-    fn ORI(&mut self) {
+    pub(crate) fn ORI(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] | self.inst.imm as i64;
         }
     }
 
-    fn SB(&mut self) {
+    pub(crate) fn SB(&mut self) {
         // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
         // self.eei.set_8(addr, self.x[self.inst.rs2 as usize].as_u8());
     }
 
-    fn SH(&mut self) {
+    pub(crate) fn SH(&mut self) {
         // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
         // self.eei.set_16(addr, self.x[self.inst.rs2 as usize].as_u16());
     }
 
-    fn SLL(&mut self) {
+    pub(crate) fn SLL(&mut self) {
         if self.inst.rd != 0 {
             // self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.x[self.inst.rs2 as usize] & 0x3F.into());
         }
     }
 
-    fn SLLI(&mut self) {
+    pub(crate) fn SLLI(&mut self) {
         if self.inst.rd != 0 {
             // self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] << (self.inst.imm & 0x3F.into());
         }
     }
 
-    fn SLT(&mut self) {
+    pub(crate) fn SLT(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.x[self.inst.rs2 as usize]).into();
         }
     }
 
-    fn SLTI(&mut self) {
+    pub(crate) fn SLTI(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] < self.inst.imm as i64).into();
         }
     }
 
-    fn SLTIU(&mut self) {
+    pub(crate) fn SLTIU(&mut self) {
         if self.inst.rd != 0 {
             // self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() < (self.inst.imm as i64).as_u()).into();
         }
     }
 
-    fn SLTU(&mut self) {
+    pub(crate) fn SLTU(&mut self) {
         if self.inst.rd != 0 {
             // self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() < self.x[self.inst.rs2 as usize].as_u()).into();
         }
     }
 
-    fn SRA(&mut self) {
+    pub(crate) fn SRA(&mut self) {
         if self.inst.rd != 0 {
             // self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.x[self.inst.rs2 as usize] & 0x3F.into());
         }
     }
 
-    fn SRAI(&mut self) {
+    pub(crate) fn SRAI(&mut self) {
         if self.inst.rd != 0 {
             // self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] >> (self.inst.imm & 0x3Fi32.into());
         }
     }
 
-    fn SRL(&mut self) {
+    pub(crate) fn SRL(&mut self) {
         if self.inst.rd != 0 {
             // self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> (self.x[self.inst.rs2 as usize].as_u() & 0x3Fu32.into())).as_s();
         }
     }
 
-    fn SRLI(&mut self) {
+    pub(crate) fn SRLI(&mut self) {
         if self.inst.rd != 0 {
             // self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize].as_u() >> (self.inst.imm.as_u() & 0x3Fu32.into())).as_s();
         }
     }
 
-    fn SUB(&mut self) {
+    pub(crate) fn SUB(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] - self.x[self.inst.rs2 as usize];
         }
     }
 
-    fn SW(&mut self) {
+    pub(crate) fn SW(&mut self) {
         // let addr = (self.x[self.inst.rs1 as usize] + self.inst.imm as i64).as_u();
         // self.eei.set_32(addr, self.x[self.inst.rs2 as usize].as_u32());
     }
 
-    fn XOR(&mut self) {
+    pub(crate) fn XOR(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] ^ self.x[self.inst.rs2 as usize];
         }
     }
 
-    fn XORI(&mut self) {
+    pub(crate) fn XORI(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] ^ self.inst.imm as i64;
         }
     }
+
+    // I64
+    pub(crate) fn ADDIW(&mut self) {}
+
+    pub(crate) fn ADDW(&mut self) {}
+
+    pub(crate) fn LD(&mut self) {}
+
+    pub(crate) fn LWU(&mut self) {}
+
+    pub(crate) fn SD(&mut self) {}
+
+    pub(crate) fn SLLIW(&mut self) {}
+
+    pub(crate) fn SLLW(&mut self) {}
+
+    pub(crate) fn SRAIW(&mut self) {}
+
+    pub(crate) fn SRAW(&mut self) {}
+
+    pub(crate) fn SRLIW(&mut self) {}
+
+    pub(crate) fn SRLW(&mut self) {}
+
+    pub(crate) fn SUBW(&mut self) {}
 }

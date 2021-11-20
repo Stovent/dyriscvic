@@ -66,6 +66,7 @@ pub enum Isa {
 }
 
 /// This struct is meant to built a constexpr look-up table for all the ISA.
+#[derive(Clone, Copy)]
 pub struct IsaEntry<EEI: ExecutionEnvironmentInterface> {
     /// The ISA itself.
     pub isa: Isa,
@@ -73,188 +74,66 @@ pub struct IsaEntry<EEI: ExecutionEnvironmentInterface> {
     pub decoder: fn(Isa, u64, u32) -> Instruction,
     /// The execute method.
     pub execute: fn(&mut RV64I<EEI>),
-    // /// The disassemble method.
-    // pub disassemble: fn(Instruction, bool) -> String,
+    /// The disassemble method.
+    pub disassemble: fn(Instruction, bool) -> String,
 }
 
-// impl<EEI: ExecutionEnvironmentInterface> Isa {
-//     /// Maps an Isa to its associated decoding, executing and disassembling functions.
-//     pub const ISA_LUT: [IsaEntry<EEI>; 2] = [
-//         IsaEntry { isa: Isa::UNKNOWN, execute: RV64I::UNKNOWN, decoder: Instruction::empty },
-//         IsaEntry { isa: Isa::ADD, execute: RV64I::ADD, decoder: Instruction::decode_type_r },
-//     ];
-// }
+impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
+    /// Maps an Isa to its associated decoding, executing and disassembling functions.
+    pub const ISA_LUT: [IsaEntry<EEI>; Isa::_SIZE as usize] = [
+        IsaEntry { isa: Isa::UNKNOWN, decoder: Instruction::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
+        IsaEntry { isa: Isa::ADD,     decoder: Instruction::decode_type_r, execute: Self::ADD,     disassemble: Self::disassemble_ADD },
+        IsaEntry { isa: Isa::ADDI,    decoder: Instruction::decode_type_i, execute: Self::ADDI,    disassemble: Self::disassemble_ADDI },
+        IsaEntry { isa: Isa::AND,     decoder: Instruction::decode_type_r, execute: Self::AND,     disassemble: Self::disassemble_AND },
+        IsaEntry { isa: Isa::ANDI,    decoder: Instruction::decode_type_i, execute: Self::ANDI,    disassemble: Self::disassemble_ANDI },
+        IsaEntry { isa: Isa::AUIPC,   decoder: Instruction::decode_type_u, execute: Self::AUIPC,   disassemble: Self::disassemble_AUIPC },
+        IsaEntry { isa: Isa::BEQ,     decoder: Instruction::decode_type_b, execute: Self::BEQ,     disassemble: Self::disassemble_BEQ },
+        IsaEntry { isa: Isa::BGE,     decoder: Instruction::decode_type_b, execute: Self::BGE,     disassemble: Self::disassemble_BGE },
+        IsaEntry { isa: Isa::BGEU,    decoder: Instruction::decode_type_b, execute: Self::BGEU,    disassemble: Self::disassemble_BGEU },
+        IsaEntry { isa: Isa::BLT,     decoder: Instruction::decode_type_b, execute: Self::BLT,     disassemble: Self::disassemble_BLT },
+        IsaEntry { isa: Isa::BLTU,    decoder: Instruction::decode_type_b, execute: Self::BLTU,    disassemble: Self::disassemble_BLTU },
+        IsaEntry { isa: Isa::BNE,     decoder: Instruction::decode_type_b, execute: Self::BNE,     disassemble: Self::disassemble_BNE },
+        IsaEntry { isa: Isa::EBREAK,  decoder: Instruction::empty,         execute: Self::EBREAK,  disassemble: Self::disassemble_EBREAK },
+        IsaEntry { isa: Isa::ECALL,   decoder: Instruction::empty,         execute: Self::ECALL,   disassemble: Self::disassemble_ECALL },
+        IsaEntry { isa: Isa::FENCE,   decoder: Instruction::decode_type_i, execute: Self::FENCE,   disassemble: Self::disassemble_FENCE },
+        IsaEntry { isa: Isa::JAL,     decoder: Instruction::decode_type_j, execute: Self::JAL,     disassemble: Self::disassemble_JAL },
+        IsaEntry { isa: Isa::JALR,    decoder: Instruction::decode_type_i, execute: Self::JALR,    disassemble: Self::disassemble_JALR },
+        IsaEntry { isa: Isa::LB,      decoder: Instruction::decode_type_i, execute: Self::LB,      disassemble: Self::disassemble_LB },
+        IsaEntry { isa: Isa::LBU,     decoder: Instruction::decode_type_i, execute: Self::LBU,     disassemble: Self::disassemble_LBU },
+        IsaEntry { isa: Isa::LH,      decoder: Instruction::decode_type_i, execute: Self::LH,      disassemble: Self::disassemble_LH },
+        IsaEntry { isa: Isa::LHU,     decoder: Instruction::decode_type_i, execute: Self::LHU,     disassemble: Self::disassemble_LHU },
+        IsaEntry { isa: Isa::LUI,     decoder: Instruction::decode_type_u, execute: Self::LUI,     disassemble: Self::disassemble_LUI },
+        IsaEntry { isa: Isa::LW,      decoder: Instruction::decode_type_i, execute: Self::LW,      disassemble: Self::disassemble_LW },
+        IsaEntry { isa: Isa::OR,      decoder: Instruction::decode_type_r, execute: Self::OR,      disassemble: Self::disassemble_OR },
+        IsaEntry { isa: Isa::ORI,     decoder: Instruction::decode_type_i, execute: Self::ORI,     disassemble: Self::disassemble_ORI },
+        IsaEntry { isa: Isa::SB,      decoder: Instruction::decode_type_s, execute: Self::SB,      disassemble: Self::disassemble_SB },
+        IsaEntry { isa: Isa::SH,      decoder: Instruction::decode_type_s, execute: Self::SH,      disassemble: Self::disassemble_SH },
+        IsaEntry { isa: Isa::SLL,     decoder: Instruction::decode_type_r, execute: Self::SLL,     disassemble: Self::disassemble_SLL },
+        IsaEntry { isa: Isa::SLLI,    decoder: Instruction::decode_type_i, execute: Self::SLLI,    disassemble: Self::disassemble_SLLI },
+        IsaEntry { isa: Isa::SLT,     decoder: Instruction::decode_type_r, execute: Self::SLT,     disassemble: Self::disassemble_SLT },
+        IsaEntry { isa: Isa::SLTI,    decoder: Instruction::decode_type_i, execute: Self::SLTI,    disassemble: Self::disassemble_SLTI },
+        IsaEntry { isa: Isa::SLTIU,   decoder: Instruction::decode_type_i, execute: Self::SLTIU,   disassemble: Self::disassemble_SLTIU },
+        IsaEntry { isa: Isa::SLTU,    decoder: Instruction::decode_type_r, execute: Self::SLTU,    disassemble: Self::disassemble_SLTU },
+        IsaEntry { isa: Isa::SRA,     decoder: Instruction::decode_type_r, execute: Self::SRA,     disassemble: Self::disassemble_SRA },
+        IsaEntry { isa: Isa::SRAI,    decoder: Instruction::decode_type_i, execute: Self::SRAI,    disassemble: Self::disassemble_SRAI },
+        IsaEntry { isa: Isa::SRL,     decoder: Instruction::decode_type_r, execute: Self::SRL,     disassemble: Self::disassemble_SRL },
+        IsaEntry { isa: Isa::SRLI,    decoder: Instruction::decode_type_i, execute: Self::SRLI,    disassemble: Self::disassemble_SRLI },
+        IsaEntry { isa: Isa::SUB,     decoder: Instruction::decode_type_r, execute: Self::SUB,     disassemble: Self::disassemble_SUB },
+        IsaEntry { isa: Isa::SW,      decoder: Instruction::decode_type_s, execute: Self::SW,      disassemble: Self::disassemble_SW },
+        IsaEntry { isa: Isa::XOR,     decoder: Instruction::decode_type_r, execute: Self::XOR,     disassemble: Self::disassemble_XOR },
+        IsaEntry { isa: Isa::XORI,    decoder: Instruction::decode_type_i, execute: Self::XORI,    disassemble: Self::disassemble_XORI },
 
-pub trait I32<EEI: ExecutionEnvironmentInterface> {
-    const EXECUTE_I32: [fn(&mut RV64I<EEI>); 40] = [
-        RV64I::<EEI>::ADD,
-        RV64I::<EEI>::ADDI,
-        RV64I::<EEI>::AND,
-        RV64I::<EEI>::ANDI,
-        RV64I::<EEI>::AUIPC,
-        RV64I::<EEI>::BEQ,
-        RV64I::<EEI>::BGE,
-        RV64I::<EEI>::BGEU,
-        RV64I::<EEI>::BLT,
-        RV64I::<EEI>::BLTU,
-        RV64I::<EEI>::BNE,
-        RV64I::<EEI>::EBREAK,
-        RV64I::<EEI>::ECALL,
-        RV64I::<EEI>::FENCE,
-        RV64I::<EEI>::JAL,
-        RV64I::<EEI>::JALR,
-        RV64I::<EEI>::LB,
-        RV64I::<EEI>::LBU,
-        RV64I::<EEI>::LH,
-        RV64I::<EEI>::LHU,
-        RV64I::<EEI>::LUI,
-        RV64I::<EEI>::LW,
-        RV64I::<EEI>::OR,
-        RV64I::<EEI>::ORI,
-        RV64I::<EEI>::SB,
-        RV64I::<EEI>::SH,
-        RV64I::<EEI>::SLL,
-        RV64I::<EEI>::SLLI,
-        RV64I::<EEI>::SLT,
-        RV64I::<EEI>::SLTI,
-        RV64I::<EEI>::SLTIU,
-        RV64I::<EEI>::SLTU,
-        RV64I::<EEI>::SRA,
-        RV64I::<EEI>::SRAI,
-        RV64I::<EEI>::SRL,
-        RV64I::<EEI>::SRLI,
-        RV64I::<EEI>::SUB,
-        RV64I::<EEI>::SW,
-        RV64I::<EEI>::XOR,
-        RV64I::<EEI>::XORI,
+        IsaEntry { isa: Isa::ADDIW,   decoder: Instruction::decode_type_i, execute: Self::ADDIW,   disassemble: Self::disassemble_ADDIW },
+        IsaEntry { isa: Isa::ADDW,    decoder: Instruction::decode_type_r, execute: Self::ADDW,    disassemble: Self::disassemble_ADDW },
+        IsaEntry { isa: Isa::LD,      decoder: Instruction::decode_type_i, execute: Self::LD,      disassemble: Self::disassemble_LD },
+        IsaEntry { isa: Isa::LWU,     decoder: Instruction::decode_type_i, execute: Self::LWU,     disassemble: Self::disassemble_LWU },
+        IsaEntry { isa: Isa::SD,      decoder: Instruction::decode_type_s, execute: Self::SD,      disassemble: Self::disassemble_SD },
+        IsaEntry { isa: Isa::SLLIW,   decoder: Instruction::decode_type_r, execute: Self::SLLIW,   disassemble: Self::disassemble_SLLIW }, // type i or type r ?
+        IsaEntry { isa: Isa::SLLW,    decoder: Instruction::decode_type_r, execute: Self::SLLW,    disassemble: Self::disassemble_SLLW },
+        IsaEntry { isa: Isa::SRAIW,   decoder: Instruction::decode_type_r, execute: Self::SRAIW,   disassemble: Self::disassemble_SRAIW }, // type i or type r ?
+        IsaEntry { isa: Isa::SRAW,    decoder: Instruction::decode_type_r, execute: Self::SRAW,    disassemble: Self::disassemble_SRAW },
+        IsaEntry { isa: Isa::SRLIW,   decoder: Instruction::decode_type_r, execute: Self::SRLIW,   disassemble: Self::disassemble_SRLIW }, // type i or type r ?
+        IsaEntry { isa: Isa::SRLW,    decoder: Instruction::decode_type_r, execute: Self::SRLW,    disassemble: Self::disassemble_SRLW },
+        IsaEntry { isa: Isa::SUBW,    decoder: Instruction::decode_type_r, execute: Self::SUBW,    disassemble: Self::disassemble_SUBW },
     ];
-    fn load_execute_i32(&mut self);
-    fn UNKNOWN(&mut self);
-    fn ADD(&mut self);
-    fn ADDI(&mut self);
-    fn AND(&mut self);
-    fn ANDI(&mut self);
-    fn AUIPC(&mut self);
-    fn BEQ(&mut self);
-    fn BGE(&mut self);
-    fn BGEU(&mut self);
-    fn BLT(&mut self);
-    fn BLTU(&mut self);
-    fn BNE(&mut self);
-    fn EBREAK(&mut self);
-    fn ECALL(&mut self);
-    fn FENCE(&mut self);
-    fn JAL(&mut self);
-    fn JALR(&mut self);
-    fn LB(&mut self);
-    fn LBU(&mut self);
-    fn LH(&mut self);
-    fn LHU(&mut self);
-    fn LUI(&mut self);
-    fn LW(&mut self);
-    fn OR(&mut self);
-    fn ORI(&mut self);
-    fn SB(&mut self);
-    fn SH(&mut self);
-    fn SLL(&mut self);
-    fn SLLI(&mut self);
-    fn SLT(&mut self);
-    fn SLTI(&mut self);
-    fn SLTIU(&mut self);
-    fn SLTU(&mut self);
-    fn SRA(&mut self);
-    fn SRAI(&mut self);
-    fn SRL(&mut self);
-    fn SRLI(&mut self);
-    fn SUB(&mut self);
-    fn SW(&mut self);
-    fn XOR(&mut self);
-    fn XORI(&mut self);
-}
-
-pub trait DisassembleI32<EEI: ExecutionEnvironmentInterface> {
-    const DISASSEMBLE_I32: [fn(Instruction, bool) -> String; 40] = [
-        RV64I::<EEI>::disassemble_ADD,
-        RV64I::<EEI>::disassemble_ADDI,
-        RV64I::<EEI>::disassemble_AND,
-        RV64I::<EEI>::disassemble_ANDI,
-        RV64I::<EEI>::disassemble_AUIPC,
-        RV64I::<EEI>::disassemble_BEQ,
-        RV64I::<EEI>::disassemble_BGE,
-        RV64I::<EEI>::disassemble_BGEU,
-        RV64I::<EEI>::disassemble_BLT,
-        RV64I::<EEI>::disassemble_BLTU,
-        RV64I::<EEI>::disassemble_BNE,
-        RV64I::<EEI>::disassemble_EBREAK,
-        RV64I::<EEI>::disassemble_ECALL,
-        RV64I::<EEI>::disassemble_FENCE,
-        RV64I::<EEI>::disassemble_JAL,
-        RV64I::<EEI>::disassemble_JALR,
-        RV64I::<EEI>::disassemble_LB,
-        RV64I::<EEI>::disassemble_LBU,
-        RV64I::<EEI>::disassemble_LH,
-        RV64I::<EEI>::disassemble_LHU,
-        RV64I::<EEI>::disassemble_LUI,
-        RV64I::<EEI>::disassemble_LW,
-        RV64I::<EEI>::disassemble_OR,
-        RV64I::<EEI>::disassemble_ORI,
-        RV64I::<EEI>::disassemble_SB,
-        RV64I::<EEI>::disassemble_SH,
-        RV64I::<EEI>::disassemble_SLL,
-        RV64I::<EEI>::disassemble_SLLI,
-        RV64I::<EEI>::disassemble_SLT,
-        RV64I::<EEI>::disassemble_SLTI,
-        RV64I::<EEI>::disassemble_SLTIU,
-        RV64I::<EEI>::disassemble_SLTU,
-        RV64I::<EEI>::disassemble_SRA,
-        RV64I::<EEI>::disassemble_SRAI,
-        RV64I::<EEI>::disassemble_SRL,
-        RV64I::<EEI>::disassemble_SRLI,
-        RV64I::<EEI>::disassemble_SUB,
-        RV64I::<EEI>::disassemble_SW,
-        RV64I::<EEI>::disassemble_XOR,
-        RV64I::<EEI>::disassemble_XORI,
-    ];
-    fn load_disassemble_i32(&mut self);
-    fn disassemble_UNKNOWN(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_ADD(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_ADDI(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_AND(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_ANDI(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_AUIPC(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_BEQ(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_BGE(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_BGEU(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_BLT(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_BLTU(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_BNE(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_EBREAK(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_ECALL(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_FENCE(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_JAL(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_JALR(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_LB(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_LBU(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_LH(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_LHU(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_LUI(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_LW(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_OR(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_ORI(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SB(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SH(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SLL(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SLLI(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SLT(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SLTI(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SLTIU(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SLTU(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SRA(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SRAI(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SRL(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SRLI(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SUB(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_SW(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_XOR(inst: Instruction, abi_name: bool) -> String;
-    fn disassemble_XORI(inst: Instruction, abi_name: bool) -> String;
 }

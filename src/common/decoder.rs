@@ -1,7 +1,7 @@
 use crate::common::{instruction::*, isa::*};
 
 /// Returns the width of the instruction word in bytes, 24 if greater than 192 bits.
-pub fn get_instruction_length(inst: u16) -> u16 {
+pub const fn get_instruction_length(inst: u16) -> u16 {
     if (inst & 0b11) != 0b11 {
         2
     } else if (inst & 0b1_1111) != 0b1_1111 {
@@ -18,14 +18,9 @@ pub fn get_instruction_length(inst: u16) -> u16 {
     }
 }
 
-pub trait Format {
-}
-
-impl Format for Isa {}
-
 impl Isa {
     /// Returns the Isa corresponding to the given 32-bits opcode.
-    pub fn from_opcode_32(opcode: u32) -> Isa {
+    pub const fn from_opcode_32(opcode: u32) -> Isa {
         match opcode & 0b111_1111 {
             0b000_0011 => Self::I_LOAD[opcode as usize >> 12 & 0b111],
             0b000_1111 => Isa::FENCE,
@@ -66,7 +61,7 @@ impl Isa {
     const I64_IMMEDIATE: [Isa; 8] = [Isa::ADDIW, Isa::SLLIW, Isa::UNKNOWN, Isa::UNKNOWN, Isa::UNKNOWN, Isa::SRLIW, Isa::UNKNOWN, Isa::UNKNOWN];
     const I64_ARITHMETIC: [Isa; 8] = [Isa::ADDW, Isa::SLLW, Isa::UNKNOWN, Isa::UNKNOWN, Isa::UNKNOWN, Isa::SRLW, Isa::UNKNOWN, Isa::UNKNOWN];
 
-    fn get_immediate_32(opcode: u32) -> Isa {
+    const fn get_immediate_32(opcode: u32) -> Isa {
         if opcode & 0xFC00_707F == 0x4000_5013 {
             Isa::SRAI
         } else {
@@ -74,7 +69,7 @@ impl Isa {
         }
     }
 
-    fn get_immediate_64(opcode: u32) -> Isa {
+    const fn get_immediate_64(opcode: u32) -> Isa {
         if opcode & 0xFE00_707F == 0x4000_501B {
             Isa::SRAIW
         } else {
@@ -82,7 +77,7 @@ impl Isa {
         }
     }
 
-    fn get_arithmetic_32(opcode: u32) -> Isa {
+    const fn get_arithmetic_32(opcode: u32) -> Isa {
         if opcode & 0xFE00_707F == 0x4000_0033 {
             Isa::SUB
         } else if opcode & 0xFE00_707F == 0x4000_5033 {
@@ -94,7 +89,7 @@ impl Isa {
         }
     }
 
-    fn get_arithmetic_64(opcode: u32) -> Isa {
+    const fn get_arithmetic_64(opcode: u32) -> Isa {
         if opcode & 0xFE00_707F == 0x4000_003B {
             Isa::SUBW
         } else if opcode & 0xFE00_707F == 0x4000_503B {

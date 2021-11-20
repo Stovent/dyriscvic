@@ -3,212 +3,212 @@
 use crate::common::instruction::Instruction;
 
 // I32
-pub fn ADD(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn ADD(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 0, rs1, rs2, 0)
 }
 
-pub fn ADDI(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn ADDI(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0010011, rd, 0, rs1, imm)
 }
 
-pub fn AND(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn AND(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 7, rs1, rs2, 0)
 }
 
-pub fn ANDI(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn ANDI(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0010011, rd, 7, rs1, imm)
 }
 
-pub fn AUIPC(rd: u8, imm: u32) -> u32 {
+pub const fn AUIPC(rd: u8, imm: u32) -> u32 {
     Instruction::encode_type_u(0b0010111, rd, imm)
 }
 
-pub fn BEQ(rs1: u8, rs2: u8, imm: u32) -> u32 {
+pub const fn BEQ(rs1: u8, rs2: u8, imm: u32) -> u32 {
     Instruction::encode_type_b(0b1100011, 0, rs1, rs2, imm)
 }
 
-pub fn BGE(rs1: u8, rs2: u8, imm: u32) -> u32 {
+pub const fn BGE(rs1: u8, rs2: u8, imm: u32) -> u32 {
     Instruction::encode_type_b(0b1100011, 5, rs1, rs2, imm)
 }
 
-pub fn BGEU(rs1: u8, rs2: u8, imm: u32) -> u32 {
+pub const fn BGEU(rs1: u8, rs2: u8, imm: u32) -> u32 {
     Instruction::encode_type_b(0b1100011, 7, rs1, rs2, imm)
 }
 
-pub fn BLT(rs1: u8, rs2: u8, imm: u32) -> u32 {
+pub const fn BLT(rs1: u8, rs2: u8, imm: u32) -> u32 {
     Instruction::encode_type_b(0b1100011, 4, rs1, rs2, imm)
 }
 
-pub fn BLTU(rs1: u8, rs2: u8, imm: u32) -> u32 {
+pub const fn BLTU(rs1: u8, rs2: u8, imm: u32) -> u32 {
     Instruction::encode_type_b(0b1100011, 6, rs1, rs2, imm)
 }
 
-pub fn BNE(rs1: u8, rs2: u8, imm: u32) -> u32 {
+pub const fn BNE(rs1: u8, rs2: u8, imm: u32) -> u32 {
     Instruction::encode_type_b(0b1100011, 1, rs1, rs2, imm)
 }
 
-pub fn EBREAK() -> u32 {
+pub const fn EBREAK() -> u32 {
     0b000000000001_00000_000_00000_1110011
 }
 
-pub fn ECALL() -> u32 {
+pub const fn ECALL() -> u32 {
     0b000000000000_00000_000_00000_1110011
 }
 
-pub fn FENCE(rd: u8, rs1: u8, succ: u8, pred: u8, fm: u8) -> u32 {
+pub const fn FENCE(rd: u8, rs1: u8, succ: u8, pred: u8, fm: u8) -> u32 {
     let imm = (fm as u32) << 8 & 0xF00 | (pred as u32) << 4 & 0xF0 | (succ as u32) & 0xF;
     Instruction::encode_type_i(0b0001111, rd, 0, rs1, imm)
 }
 
-pub fn JAL(rd: u8, imm: u32) -> u32 {
+pub const fn JAL(rd: u8, imm: u32) -> u32 {
     Instruction::encode_type_j(0b1101111, rd, imm)
 }
 
-pub fn JALR(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn JALR(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b1100111, rd, 0, rs1, imm)
 }
 
-pub fn LB(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn LB(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0000011, rd, 0, rs1, imm)
 }
 
-pub fn LBU(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn LBU(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0000011, rd, 4, rs1, imm)
 }
 
-pub fn LH(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn LH(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0000011, rd, 1, rs1, imm)
 }
 
-pub fn LHU(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn LHU(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0000011, rd, 5, rs1, imm)
 }
 
-pub fn LUI(rd: u8, imm: u32) -> u32 {
+pub const fn LUI(rd: u8, imm: u32) -> u32 {
     Instruction::encode_type_u(0b0110111, rd, imm)
 }
 
-pub fn LW(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn LW(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0000011, rd, 2, rs1, imm)
 }
 
-pub fn OR(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn OR(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 6, rs1, rs2, 0)
 }
 
-pub fn ORI(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn ORI(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0010011, rd, 6, rs1, imm)
 }
 
-pub fn SB(rs2: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn SB(rs2: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_s(0b0100011, 0, rs1, rs2, imm)
 }
 
-pub fn SH(rs2: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn SH(rs2: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_s(0b0100011, 1, rs1, rs2, imm)
 }
 
-pub fn SLL(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SLL(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 1, rs1, rs2, 0)
 }
 
-pub fn SLLI(rd: u8, rs1: u8, shamt: u32) -> u32 {
+pub const fn SLLI(rd: u8, rs1: u8, shamt: u32) -> u32 {
     Instruction::encode_type_i(0b0010011, rd, 1, rs1, shamt & 0x3F)
 }
 
-pub fn SLT(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SLT(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 2, rs1, rs2, 0)
 }
 
-pub fn SLTI(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn SLTI(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0010011, rd, 2, rs1, imm)
 }
 
-pub fn SLTIU(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn SLTIU(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0010011, rd, 3, rs1, imm)
 }
 
-pub fn SLTU(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SLTU(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 3, rs1, rs2, 0)
 }
 
-pub fn SRA(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SRA(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 5, rs1, rs2, 0b0100000)
 }
 
-pub fn SRAI(rd: u8, rs1: u8, shamt: u32) -> u32 {
+pub const fn SRAI(rd: u8, rs1: u8, shamt: u32) -> u32 {
     Instruction::encode_type_i(0b0010011, rd, 5, rs1, 0x400u32 | (shamt & 0x3F))
 }
 
-pub fn SRL(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SRL(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 5, rs1, rs2, 0)
 }
 
-pub fn SRLI(rd: u8, rs1: u8, shamt: u32) -> u32 {
+pub const fn SRLI(rd: u8, rs1: u8, shamt: u32) -> u32 {
     Instruction::encode_type_i(0b0010011, rd, 5, rs1, shamt & 0x3F)
 }
 
-pub fn SUB(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SUB(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 0, rs1, rs2, 0b0100000)
 }
 
-pub fn SW(rs2: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn SW(rs2: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_s(0b0100011, 2, rs1, rs2, imm)
 }
 
-pub fn XOR(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn XOR(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0110011, rd, 4, rs1, rs2, 0)
 }
 
-pub fn XORI(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn XORI(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0010011, rd, 4, rs1, imm)
 }
 
 // I64
-pub fn ADDIW(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn ADDIW(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0011011, rd, 0, rs1, imm)
 }
 
-pub fn ADDW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn ADDW(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0111011, rd, 0, rs1, rs2, 0)
 }
 
-pub fn LD(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn LD(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0000011, rd, 3, rs1, imm)
 }
 
-pub fn LWU(rd: u8, rs1: u8, imm: u32) -> u32 {
+pub const fn LWU(rd: u8, rs1: u8, imm: u32) -> u32 {
     Instruction::encode_type_i(0b0000011, rd, 6, rs1, imm)
 }
 
-pub fn SD(rs1: u8, rs2: u8, imm: u32) -> u32 {
+pub const fn SD(rs1: u8, rs2: u8, imm: u32) -> u32 {
     Instruction::encode_type_s(0b0100011, 3, rs1, rs2, imm)
 }
 
-pub fn SLLIW(rd: u8, rs1: u8, shamt: u8) -> u32 {
+pub const fn SLLIW(rd: u8, rs1: u8, shamt: u8) -> u32 {
     Instruction::encode_type_r(0b0011011, rd, 1, rs1, shamt, 0)
 }
 
-pub fn SLLW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SLLW(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0111011, rd, 1, rs1, rs2, 0)
 }
 
-pub fn SRAIW(rd: u8, rs1: u8, shamt: u8) -> u32 {
+pub const fn SRAIW(rd: u8, rs1: u8, shamt: u8) -> u32 {
     Instruction::encode_type_r(0b0011011, rd, 5, rs1, shamt, 0b0100000)
 }
 
-pub fn SRAW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SRAW(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0111011, rd, 5, rs1, rs2, 0b0100000)
 }
 
-pub fn SRLIW(rd: u8, rs1: u8, shamt: u8) -> u32 {
+pub const fn SRLIW(rd: u8, rs1: u8, shamt: u8) -> u32 {
     Instruction::encode_type_r(0b0011011, rd, 5, rs1, shamt, 0)
 }
 
-pub fn SRLW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SRLW(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0111011, rd, 5, rs1, rs2, 0)
 }
 
-pub fn SUBW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+pub const fn SUBW(rd: u8, rs1: u8, rs2: u8) -> u32 {
     Instruction::encode_type_r(0b0111011, rd, 0, rs1, rs2, 0b0100000)
 }

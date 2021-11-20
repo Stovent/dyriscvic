@@ -30,8 +30,7 @@ pub struct RV64I<EEI: ExecutionEnvironmentInterface> {
     /// Configuration of the context.
     pub config: RVConfig,
     eei: EEI,
-    execute: [fn(&mut Self); Isa::_SIZE as usize],
-    // disassemble: [fn(Instruction, abi_name: bool) -> String; ISA::_SIZE as usize],
+    isa: [IsaEntry<EEI>; Isa::_SIZE as usize],
 }
 
 impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
@@ -56,13 +55,9 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
             inst: Instruction::empty(Isa::UNKNOWN, 0u16.into(), 0),
             config,
             eei,
-            execute: [RV64I::UNKNOWN; Isa::_SIZE as usize],
-            // disassemble: [RV64I::<EEI>::disassemble_UNKNOWN; ISA::_SIZE as usize],
+            isa: Self::ISA_LUT,
         };
         core.x[0] = 0;
-        // core.load_isa();
-        core.execute[Isa::ANDI as usize] = Self::ANDI;
-        core.execute[Isa::JAL as usize] = Self::JAL;
         core
     }
 }
