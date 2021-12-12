@@ -7,19 +7,19 @@ struct ExecutionEnvironment {
 
 impl MemoryAccess for ExecutionEnvironment {
     fn get_8(&mut self, addr: u64) -> u8 {
-        return self.memory[addr as usize];
+        self.memory[addr as usize]
     }
 
     fn get_16(&mut self, addr: u64) -> u16 {
-        return (self.get_8(addr + 1) as u16) << 8 | self.get_8(addr) as u16;
+        (self.get_8(addr + 1) as u16) << 8 | self.get_8(addr) as u16
     }
 
     fn get_32(&mut self, addr: u64) -> u32 {
-        return (self.get_16(addr + 2) as u32) << 16 | self.get_16(addr) as u32;
+        (self.get_16(addr + 2) as u32) << 16 | self.get_16(addr) as u32
     }
 
     fn get_64(&mut self, addr: u64) -> u64 {
-        return (self.get_32(addr + 4) as u64) << 32 | self.get_32(addr) as u64;
+        (self.get_32(addr + 4) as u64) << 32 | self.get_32(addr) as u64
     }
 
     fn set_8(&mut self, addr: u64, data: u8) {

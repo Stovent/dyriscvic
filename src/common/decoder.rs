@@ -1,4 +1,4 @@
-use crate::common::{instruction::*, isa::*};
+use crate::common::isa::*;
 
 /// Returns the width of the instruction word in bytes, 24 if greater than 192 bits.
 pub const fn get_instruction_length(inst: u16) -> u16 {
@@ -38,19 +38,6 @@ impl Isa {
             _ => Isa::UNKNOWN,
         }
     }
-
-    pub const FORMAT: [fn(Isa, u64, u32) -> Instruction; Isa::_SIZE as usize] = [
-        Instruction::empty,
-
-        Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_u, Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_b,
-        Instruction::decode_type_b, Instruction::decode_type_b, Instruction::decode_type_b, Instruction::empty,         Instruction::empty,         Instruction::decode_type_i, Instruction::decode_type_j, Instruction::decode_type_i,
-        Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_u, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i,
-        Instruction::decode_type_s, Instruction::decode_type_s, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_r,
-        Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_s, Instruction::decode_type_r, Instruction::decode_type_i,
-
-        Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_i, Instruction::decode_type_s, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_i,
-        Instruction::decode_type_r, Instruction::decode_type_i, Instruction::decode_type_r, Instruction::decode_type_r,
-    ];
 
     const I32_ARITHMETIC: [Isa; 8] = [Isa::ADD, Isa::SLL, Isa::SLT, Isa::SLTU, Isa::XOR, Isa::SRL, Isa::OR, Isa::AND];
     const I32_BRANCH: [Isa; 8] = [Isa::BEQ, Isa::BNE, Isa::UNKNOWN, Isa::UNKNOWN, Isa::BLT, Isa::BGE, Isa::BLTU, Isa::BGEU];

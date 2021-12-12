@@ -1,10 +1,10 @@
-use crate::common::decoder::get_instruction_length;
+// use crate::common::decoder::get_instruction_length;
 use crate::common::isa::*;
 use crate::public::*;
 use crate::rvi::*;
 
-const I64_SHIFT_MASK: i64 = 0x3F;
 const I32_SHIFT_MASK: i32 = 0x1F;
+const I64_SHIFT_MASK: i64 = 0x3F;
 
 impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     /// Executes a single intruction on the hart.
@@ -12,9 +12,9 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
         let pc = self.pc;
         self.pc += 4;
         let opcode = self.eei.get_opcode_32(pc); // TODO: instruction-address-misaligned
-        let inst_size = get_instruction_length(opcode as u16);
-        match inst_size {
-            4 => {
+        // let inst_size = get_instruction_length(opcode as u16);
+        // match inst_size {
+        //     4 => {
                 let isa = Isa::from_opcode_32(opcode);
                 let entry = &self.isa[isa as usize];
                 self.inst = (entry.decoder)(isa, pc, opcode);
@@ -23,9 +23,9 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
                 println!("Instruction: {}", (entry.disassemble)(self.inst, self.config.abi_name));
 
                 (entry.execute)(self);
-            },
-            _ => println!("Unknown opcode {:#X} at {:#X}", opcode, pc),
-        };
+        //     },
+        //     _ => println!("Unknown opcode {:#X} at {:#X}", opcode, pc),
+        // };
     }
 }
 

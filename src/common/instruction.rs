@@ -1,3 +1,4 @@
+use crate::common::get_x_register_name;
 use crate::common::isa::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -12,11 +13,6 @@ pub struct Instruction {
 }
 
 impl Instruction {
-    pub fn from_opcode_32(pc: u64, opcode: u32) -> Self {
-        let isa = Isa::from_opcode_32(opcode);
-        Isa::FORMAT[isa as usize](isa, pc, opcode)
-    }
-
     pub const fn empty(inst: Isa, pc: u64, _: u32) -> Self {
         Self { inst, pc, rd: 0, rs1: 0, rs2: 0, imm: 0 }
     }
@@ -86,5 +82,25 @@ impl Instruction {
 
     pub const fn encode_type_j(opcode: u8, rd: u8, imm: u32) -> u32 {
         (imm << 11 & 0x8000_0000) | (imm << 20 & 0x7FE0_0000) | (imm << 9 & 0x0010_0000) | (imm & 0x000F_F000) | (rd as u32) << 7 & 0x0F80 | opcode as u32 & 0x7F
+    }
+
+    pub fn disassemble_type_r(self, abi_name: bool) -> String {
+        format!("{}, {}, {}", get_x_register_name(self.rd, abi_name), get_x_register_name(self.rs1, abi_name), get_x_register_name(self.rs2, abi_name))
+    }
+
+    pub fn disassemble_type_i(self, abi_name: bool) -> String {
+        format!("{}, {}, {}", get_x_register_name(self.rd, abi_name), get_x_register_name(self.rs1, abi_name), self.imm)
+    }
+
+    pub fn disassemble_type_s(self, abi_name: bool) -> String {
+        format!("{}, {}, {}", get_x_register_name(self.rs2, abi_name), get_x_register_name(self.rs1, abi_name), self.imm)
+    }
+
+    pub fn disassemble_type_b(self, abi_name: bool) -> String {
+        format!("{}, {}, {}", get_x_register_name(self.rs1, abi_name), get_x_register_name(self.rs2, abi_name), self.imm)
+    }
+
+    pub fn disassemble_type_u_j(self, abi_name: bool) -> String {
+        format!("{}, {}", get_x_register_name(self.rd, abi_name), self.imm)
     }
 }
