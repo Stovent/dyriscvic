@@ -65,9 +65,9 @@ fn main() {
         abi_name: true,
     };
 
-    let mut rv32i = RV64I::new([0; 32], 0, conf, eei);
+    let mut rvi = RV64I::new([0; 32], 0, conf, eei);
 
     for _ in 0..130_000_000 {
-        rv32i.single_step();
+        rvi.single_step();
     }
 }

@@ -4,8 +4,6 @@ pub mod decoder;
 pub mod instruction;
 pub mod isa;
 
-pub use instruction::Instruction;
-
 /// Returns true if the given number is even, false if it odd.
 pub const fn is_even(num: u64) -> bool {
     return num & 1 == 0;
