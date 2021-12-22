@@ -93,9 +93,10 @@ declare_isa_entry!(IsaEntry64, RV64I, u64, Instruction64);
 macro_rules! declare_isa_lut {
     ($entry:ident, $exec:ident, $inst:ty) => {
         impl<EEI: ExecutionEnvironmentInterface> $exec<EEI> {
+            /// Default empty IsaEntry for custom LUT initialization.
+            pub const ISA_UNKNOWN: $entry<EEI> = $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty, execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN };
             /// Maps an Isa to its associated decoding, executing and disassembling functions.
-            pub const ISA_LUT: [$entry<EEI>; Isa::_SIZE as usize] = [
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
+            pub const ISA_LUT_I32: [$entry<EEI>; Isa::XORI as usize] = [
                 $entry { isa: Isa::ADD,     decoder: <$inst>::decode_type_r, execute: Self::ADD,     disassemble: Self::disassemble_ADD },
                 $entry { isa: Isa::ADDI,    decoder: <$inst>::decode_type_i, execute: Self::ADDI,    disassemble: Self::disassemble_ADDI },
                 $entry { isa: Isa::AND,     decoder: <$inst>::decode_type_r, execute: Self::AND,     disassemble: Self::disassemble_AND },
@@ -136,19 +137,6 @@ macro_rules! declare_isa_lut {
                 $entry { isa: Isa::SW,      decoder: <$inst>::decode_type_s, execute: Self::SW,      disassemble: Self::disassemble_SW },
                 $entry { isa: Isa::XOR,     decoder: <$inst>::decode_type_r, execute: Self::XOR,     disassemble: Self::disassemble_XOR },
                 $entry { isa: Isa::XORI,    decoder: <$inst>::decode_type_i, execute: Self::XORI,    disassemble: Self::disassemble_XORI },
-                // placeholder
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
-                $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty,         execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN },
             ];
         }
     };
@@ -156,17 +144,17 @@ macro_rules! declare_isa_lut {
 
 impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     /// Maps an Isa to its associated decoding, executing and disassembling functions.
-    pub const ISA_LUT_64: [IsaEntry64<EEI>; Isa::_SIZE as usize - Isa::ADDIW as usize] = [
+    pub const ISA_LUT_I64: [IsaEntry64<EEI>; Isa::_SIZE as usize - Isa::ADDIW as usize] = [
         IsaEntry64 { isa: Isa::ADDIW,   decoder: Instruction64::decode_type_i, execute: Self::ADDIW,   disassemble: Self::disassemble_ADDIW },
         IsaEntry64 { isa: Isa::ADDW,    decoder: Instruction64::decode_type_r, execute: Self::ADDW,    disassemble: Self::disassemble_ADDW },
         IsaEntry64 { isa: Isa::LD,      decoder: Instruction64::decode_type_i, execute: Self::LD,      disassemble: Self::disassemble_LD },
         IsaEntry64 { isa: Isa::LWU,     decoder: Instruction64::decode_type_i, execute: Self::LWU,     disassemble: Self::disassemble_LWU },
         IsaEntry64 { isa: Isa::SD,      decoder: Instruction64::decode_type_s, execute: Self::SD,      disassemble: Self::disassemble_SD },
-        IsaEntry64 { isa: Isa::SLLIW,   decoder: Instruction64::decode_type_r, execute: Self::SLLIW,   disassemble: Self::disassemble_SLLIW }, // type i or type r ?
+        IsaEntry64 { isa: Isa::SLLIW,   decoder: Instruction64::decode_type_i, execute: Self::SLLIW,   disassemble: Self::disassemble_SLLIW }, // type i or type r ?
         IsaEntry64 { isa: Isa::SLLW,    decoder: Instruction64::decode_type_r, execute: Self::SLLW,    disassemble: Self::disassemble_SLLW },
-        IsaEntry64 { isa: Isa::SRAIW,   decoder: Instruction64::decode_type_r, execute: Self::SRAIW,   disassemble: Self::disassemble_SRAIW }, // type i or type r ?
+        IsaEntry64 { isa: Isa::SRAIW,   decoder: Instruction64::decode_type_i, execute: Self::SRAIW,   disassemble: Self::disassemble_SRAIW }, // type i or type r ?
         IsaEntry64 { isa: Isa::SRAW,    decoder: Instruction64::decode_type_r, execute: Self::SRAW,    disassemble: Self::disassemble_SRAW },
-        IsaEntry64 { isa: Isa::SRLIW,   decoder: Instruction64::decode_type_r, execute: Self::SRLIW,   disassemble: Self::disassemble_SRLIW }, // type i or type r ?
+        IsaEntry64 { isa: Isa::SRLIW,   decoder: Instruction64::decode_type_i, execute: Self::SRLIW,   disassemble: Self::disassemble_SRLIW }, // type i or type r ?
         IsaEntry64 { isa: Isa::SRLW,    decoder: Instruction64::decode_type_r, execute: Self::SRLW,    disassemble: Self::disassemble_SRLW },
         IsaEntry64 { isa: Isa::SUBW,    decoder: Instruction64::decode_type_r, execute: Self::SUBW,    disassemble: Self::disassemble_SUBW },
     ];

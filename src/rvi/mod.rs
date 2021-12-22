@@ -64,7 +64,7 @@ macro_rules! impl_rvi {
                     inst: <$inst>::empty(Isa::UNKNOWN, 0u32.into(), 0),
                     config,
                     eei,
-                    isa: Self::ISA_LUT,
+                    isa: [Self::ISA_UNKNOWN; Isa::_SIZE as usize],
                 };
                 core.load_isa();
                 core.x[0] = 0;
@@ -78,11 +78,14 @@ impl_rvi!(RV32I, i32, u32, IsaEntry32, Instruction32);
 impl_rvi!(RV64I, i64, u64, IsaEntry64, Instruction64);
 
 impl<EEI: ExecutionEnvironmentInterface> RV32I<EEI> {
-    fn load_isa(&mut self) {}
+    fn load_isa(&mut self) {
+        self.isa[Isa::ADD as usize..Isa::XORI as usize + 1].copy_from_slice(&Self::ISA_LUT_I32);
+    }
 }
 
 impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     fn load_isa(&mut self) {
-        self.isa[Isa::ADDIW as usize..].copy_from_slice(&Self::ISA_LUT_64);
+        self.isa[Isa::ADD as usize..Isa::XORI as usize + 1].copy_from_slice(&Self::ISA_LUT_I32);
+        self.isa[Isa::ADDIW as usize..Isa::SUBW as usize + 1].copy_from_slice(&Self::ISA_LUT_I64);
     }
 }

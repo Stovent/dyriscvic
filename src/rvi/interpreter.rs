@@ -22,7 +22,7 @@ macro_rules! impl_rvi {
                         self.inst = (entry.decoder)(isa, pc, opcode);
 
                         #[cfg(debug_assertions)]
-                        println!("Instruction: {}", (entry.disassemble)(self.inst, self.config.abi_name));
+                        println!("{:X}: {}", pc, (entry.disassemble)(self.inst, self.config.abi_name));
 
                         (entry.execute)(self);
                 //     },
