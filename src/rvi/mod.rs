@@ -80,6 +80,10 @@ impl_rvi!(RV64I, i64, u64, IsaEntry64, Instruction64);
 impl<EEI: ExecutionEnvironmentInterface> RV32I<EEI> {
     fn load_isa(&mut self) {
         self.isa[Isa::ADD as usize..Isa::XORI as usize + 1].copy_from_slice(&Self::ISA_LUT_I32);
+
+        if self.config.ext.contains('M') {
+            self.isa[Isa::DIV as usize..Isa::REMU as usize + 1].copy_from_slice(&Self::ISA_LUT_M32);
+        }
     }
 }
 
@@ -87,5 +91,10 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     fn load_isa(&mut self) {
         self.isa[Isa::ADD as usize..Isa::XORI as usize + 1].copy_from_slice(&Self::ISA_LUT_I32);
         self.isa[Isa::ADDIW as usize..Isa::SUBW as usize + 1].copy_from_slice(&Self::ISA_LUT_I64);
+
+        if self.config.ext.contains('M') {
+            self.isa[Isa::DIV as usize..Isa::REMU as usize + 1].copy_from_slice(&Self::ISA_LUT_M32);
+            self.isa[Isa::DIVUW as usize..Isa::REMW as usize + 1].copy_from_slice(&Self::ISA_LUT_M64);
+        }
     }
 }

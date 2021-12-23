@@ -208,3 +208,61 @@ fn assembler_i64() {
     let subw_ = 0b0100000_11101_11100_000_11011_0111011u32;
     assert_eq!(subw, subw_, "SUBW {:X} {:X}", subw, subw_);
 }
+
+#[test]
+fn assembler_m32() {
+    let div = DIV(1, 2, 1);
+    let div_ = 0b0000001_00001_00010_100_00001_0110011u32;
+    assert_eq!(div, div_, "DIV {:X} {:X}", div, div_);
+
+    let divu = DIVU(3, 4, 5);
+    let divu_ = 0b0000001_00101_00100_101_00011_0110011u32;
+    assert_eq!(divu, divu_, "DIVU {:X} {:X}", divu, divu_);
+
+    let mul = MUL(6, 7, 8);
+    let mul_ = 0b0000001_01000_00111_000_00110_0110011u32;
+    assert_eq!(mul, mul_, "MUL {:X} {:X}", mul, mul_);
+
+    let mulh = MULH(8, 9, 10);
+    let mulh_ = 0b0000001_01010_01001_001_01000_0110011u32;
+    assert_eq!(mulh, mulh_, "MULH {:X} {:X}", mulh, mulh_);
+
+    let mulhsu = MULHSU(10, 11, 12);
+    let mulhsu_ = 0b0000001_01100_01011_010_01010_0110011u32;
+    assert_eq!(mulhsu, mulhsu_, "MULHSU {:X} {:X}", mulhsu, mulhsu_);
+
+    let mulhu = MULHU(12, 13, 1);
+    let mulhu_ = 0b0000001_00001_01101_011_01100_0110011u32;
+    assert_eq!(mulhu, mulhu_, "MULHU {:X} {:X}", mulhu, mulhu_);
+
+    let rem = REM(14, 15, 16);
+    let rem_ = 0b0000001_10000_01111_110_01110_0110011u32;
+    assert_eq!(rem, rem_, "REM {:X} {:X}", rem, rem_);
+
+    let remu = REMU(17, 18, 2);
+    let remu_ = 0b0000001_00010_10010_111_10001_0110011u32;
+    assert_eq!(remu, remu_, "REMU {:X} {:X}", remu, remu_);
+}
+
+#[test]
+fn assembler_m64() {
+    let divuw = DIVUW(22, 23, 3);
+    let divuw_ = 0b0000001_00011_10111_101_10110_0111011u32;
+    assert_eq!(divuw, divuw_, "DIVUW {:X} {:X}", divuw, divuw_);
+
+    let divw = DIVW(19, 20, 21);
+    let divw_ = 0b0000001_10101_10100_100_10011_0111011u32;
+    assert_eq!(divw, divw_, "DIVW {:X} {:X}", divw, divw_);
+
+    let mulw = MULW(24, 25, 26);
+    let mulw_ = 0b0000001_11010_11001_000_11000_0111011u32;
+    assert_eq!(mulw, mulw_, "MULW {:X} {:X}", mulw, mulw_);
+
+    let remuw = REMUW(27, 28, 29);
+    let remuw_ = 0b0000001_11101_11100_111_11011_0111011u32;
+    assert_eq!(remuw, remuw_, "REMUW {:X} {:X}", remuw, remuw_);
+
+    let remw = REMW(27, 28, 29);
+    let remw_ = 0b0000001_11101_11100_110_11011_0111011u32;
+    assert_eq!(remw, remw_, "REMUW {:X} {:X}", remw, remw_);
+}

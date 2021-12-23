@@ -212,3 +212,57 @@ pub const fn SRLW(rd: u8, rs1: u8, rs2: u8) -> u32 {
 pub const fn SUBW(rd: u8, rs1: u8, rs2: u8) -> u32 {
     encode_type_r(0b0111011, rd, 0, rs1, rs2, 0b0100000)
 }
+
+// M32
+pub const fn DIV(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0110011, rd, 4, rs1, rs2, 0b0000001)
+}
+
+pub const fn DIVU(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0110011, rd, 5, rs1, rs2, 0b0000001)
+}
+
+pub const fn MUL(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0110011, rd, 0, rs1, rs2, 0b0000001)
+}
+
+pub const fn MULH(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0110011, rd, 1, rs1, rs2, 0b0000001)
+}
+
+pub const fn MULHSU(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0110011, rd, 2, rs1, rs2, 0b0000001)
+}
+
+pub const fn MULHU(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0110011, rd, 3, rs1, rs2, 0b0000001)
+}
+
+pub const fn REM(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0110011, rd, 6, rs1, rs2, 0b0000001)
+}
+
+pub const fn REMU(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0110011, rd, 7, rs1, rs2, 0b0000001)
+}
+
+// M64
+pub const fn DIVUW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 5, rs1, rs2, 0b0000001)
+}
+
+pub const fn DIVW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 4, rs1, rs2, 0b0000001)
+}
+
+pub const fn MULW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 0, rs1, rs2, 0b0000001)
+}
+
+pub const fn REMUW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 7, rs1, rs2, 0b0000001)
+}
+
+pub const fn REMW(rd: u8, rs1: u8, rs2: u8) -> u32 {
+    encode_type_r(0b0111011, rd, 6, rs1, rs2, 0b0000001)
+}

@@ -43,6 +43,7 @@ macro_rules! impl_rv32i {
                 self.eei.trap(Trap::IllegalInstruction);
             }
 
+            // I32
             pub(crate) fn ADD(&mut self) {
                 if self.inst.rd != 0 {
                     self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] + self.x[self.inst.rs2 as usize];
@@ -343,6 +344,7 @@ macro_rules! impl_rv32i {
 }
 
 impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
+    // I64
     pub(crate) fn ADDIW(&mut self) {
         if self.inst.rd != 0 {
             self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] as i32 as i64 + self.inst.imm as i64;
@@ -424,5 +426,130 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     }
 }
 
+macro_rules! impl_rv32m {
+    ($name:ident, $reg:ty, $ureg:ty, $sbigreg:ty, $ubigreg:ty, $xlen:expr) => {
+        impl<EEI: ExecutionEnvironmentInterface> $name<EEI> {
+            // M32
+            pub(crate) fn DIV(&mut self) {
+                if self.x[self.inst.rs2 as usize] == 0 {
+                    self.x[self.inst.rd as usize] = -1;
+                } else if self.x[self.inst.rs1 as usize] == <$reg>::MIN && self.x[self.inst.rs2 as usize] == -1 {
+                    self.x[self.inst.rd as usize] = <$reg>::MIN;
+                } else if self.inst.rd != 0 {
+                    self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] / self.x[self.inst.rs2 as usize];
+                }
+            }
+
+            pub(crate) fn DIVU(&mut self) {
+                if self.x[self.inst.rs2 as usize] == 0 {
+                    self.x[self.inst.rd as usize] = -1;
+                } else if self.inst.rd != 0 {
+                    self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as $ureg / self.x[self.inst.rs2 as usize] as $ureg) as $reg;
+                }
+            }
+
+            pub(crate) fn MUL(&mut self) {
+                if self.inst.rd != 0 {
+                    self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] * self.x[self.inst.rs2 as usize];
+                }
+            }
+
+            pub(crate) fn MULH(&mut self) {
+                if self.inst.rd != 0 {
+                    self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as $sbigreg * self.x[self.inst.rs2 as usize] as $sbigreg) >> $xlen) as $reg;
+                }
+            }
+
+            pub(crate) fn MULHSU(&mut self) {
+                if self.inst.rd != 0 {
+                    let negative = self.x[self.inst.rs1 as usize] < 0;
+                    let multiplicand = if negative {
+                        (-self.x[self.inst.rs1 as usize]) as $ubigreg
+                    } else {
+                        self.x[self.inst.rs1 as usize] as $ubigreg
+                    };
+
+                    self.x[self.inst.rd as usize] = ((multiplicand * self.x[self.inst.rs2 as usize] as $ubigreg) >> $xlen) as $reg;
+                    if negative {
+                        self.x[self.inst.rd as usize] = -self.x[self.inst.rd as usize];
+                    }
+                }
+            }
+
+            pub(crate) fn MULHU(&mut self) {
+                if self.inst.rd != 0 {
+                    self.x[self.inst.rd as usize] = ((self.x[self.inst.rs1 as usize] as $ubigreg * self.x[self.inst.rs2 as usize] as $ubigreg) >> $xlen) as $reg;
+                }
+            }
+
+            pub(crate) fn REM(&mut self) {
+                if self.x[self.inst.rs2 as usize] == 0 {
+                    self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize];
+                } else if self.x[self.inst.rs1 as usize] == <$reg>::MIN && self.x[self.inst.rs2 as usize] == -1 {
+                    self.x[self.inst.rd as usize] = 0;
+                } else if self.inst.rd != 0 {
+                    self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] % self.x[self.inst.rs2 as usize];
+                }
+            }
+
+            pub(crate) fn REMU(&mut self) {
+                if self.x[self.inst.rs2 as usize] == 0 {
+                    self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize];
+                } else if self.inst.rd != 0 {
+                    self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as $ureg % self.x[self.inst.rs2 as usize] as $ureg) as $reg;
+                }
+            }
+        }
+    };
+}
+
+impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
+    // M64
+    pub(crate) fn DIVUW(&mut self) {
+        if self.x[self.inst.rs2 as usize] as u32 == 0 {
+            self.x[self.inst.rd as usize] = -1;
+        } else if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u32 / self.x[self.inst.rs2 as usize] as u32) as i32 as i64;
+        }
+    }
+
+    pub(crate) fn DIVW(&mut self) {
+        if self.x[self.inst.rs2 as usize] as i32 == 0 {
+            self.x[self.inst.rd as usize] = -1;
+        } else if self.x[self.inst.rs1 as usize] as i32 == i32::MIN && self.x[self.inst.rs2 as usize] as i32 == -1 {
+            self.x[self.inst.rd as usize] = i32::MIN as i64;
+        } else if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as i32 / self.x[self.inst.rs2 as usize] as i32) as i64;
+        }
+    }
+
+    pub(crate) fn MULW(&mut self) {
+        if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as i32 * self.x[self.inst.rs2 as usize] as i32) as i64;
+        }
+    }
+
+    pub(crate) fn REMUW(&mut self) {
+        if self.x[self.inst.rs2 as usize] as u32 == 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] as i32 as i64;
+        } else if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as u32 % self.x[self.inst.rs2 as usize] as u32) as i32 as i64;
+        }
+    }
+
+    pub(crate) fn REMW(&mut self) {
+        if self.x[self.inst.rs2 as usize] as i32 == 0 {
+            self.x[self.inst.rd as usize] = self.x[self.inst.rs1 as usize] as i32 as i64;
+        } else if self.x[self.inst.rs1 as usize] as i32 == i32::MIN && self.x[self.inst.rs2 as usize] as i32 == -1 {
+            self.x[self.inst.rd as usize] = 0;
+        } else if self.inst.rd != 0 {
+            self.x[self.inst.rd as usize] = (self.x[self.inst.rs1 as usize] as i32 % self.x[self.inst.rs2 as usize] as i32) as i64;
+        }
+    }
+}
+
 impl_rv32i!(RV32I, i32, u32, I32_SHIFT_MASK);
 impl_rv32i!(RV64I, i64, u64, I64_SHIFT_MASK);
+
+impl_rv32m!(RV32I, i32, u32, i64, u64, 32);
+impl_rv32m!(RV64I, i64, u32, i128, u128, 64);

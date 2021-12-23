@@ -37,6 +37,8 @@ fn from_opcode_32<EEI: ExecutionEnvironmentInterface>(opcode: u32) -> Instructio
     let mut entry = vec![RV64I::<EEI>::ISA_UNKNOWN];
     entry.extend_from_slice(&RV64I::<EEI>::ISA_LUT_I32);
     entry.extend_from_slice(&RV64I::<EEI>::ISA_LUT_I64);
+    entry.extend_from_slice(&RV64I::<EEI>::ISA_LUT_M32);
+    entry.extend_from_slice(&RV64I::<EEI>::ISA_LUT_M64);
     (entry[isa as usize].decoder)(isa, 0, opcode)
 }
 
@@ -264,6 +266,64 @@ fn decode_i64() {
     let subw = 0b0100000_10110_10001_000_10011_0111011u32;
     let subw_ = from_opcode_32::<ExecutionEnvironment>(subw);
     type_r(&subw_, Isa::SUBW, 22, 17, 19);
+}
+
+#[test]
+fn decode_m32() {
+    let div = 0b0000001_00000_00001_100_00010_0110011u32;
+    let div_ = from_opcode_32::<ExecutionEnvironment>(div);
+    type_r(&div_, Isa::DIV, 0, 1, 2);
+
+    let divu = 0b0000001_00011_00100_101_00101_0110011u32;
+    let divu_ = from_opcode_32::<ExecutionEnvironment>(divu);
+    type_r(&divu_, Isa::DIVU, 3, 4, 5);
+
+    let mul = 0b0000001_00110_00111_000_01000_0110011u32;
+    let mul_ = from_opcode_32::<ExecutionEnvironment>(mul);
+    type_r(&mul_, Isa::MUL, 6, 7, 8);
+
+    let mulh = 0b0000001_01001_01010_001_01011_0110011u32;
+    let mulh_ = from_opcode_32::<ExecutionEnvironment>(mulh);
+    type_r(&mulh_, Isa::MULH, 9, 10, 11);
+
+    let mulhsu = 0b0000001_01100_01101_010_01110_0110011u32;
+    let mulhsu_ = from_opcode_32::<ExecutionEnvironment>(mulhsu);
+    type_r(&mulhsu_, Isa::MULHSU, 12, 13, 14);
+
+    let mulhu = 0b0000001_01111_10000_011_10001_0110011u32;
+    let mulhu_ = from_opcode_32::<ExecutionEnvironment>(mulhu);
+    type_r(&mulhu_, Isa::MULHU, 15, 16, 17);
+
+    let rem = 0b0000001_10010_10011_110_10100_0110011u32;
+    let rem_ = from_opcode_32::<ExecutionEnvironment>(rem);
+    type_r(&rem_, Isa::REM, 18, 19, 20);
+
+    let remu = 0b0000001_10101_10110_111_10111_0110011u32;
+    let remu_ = from_opcode_32::<ExecutionEnvironment>(remu);
+    type_r(&remu_, Isa::REMU, 21, 22, 23);
+}
+
+#[test]
+fn decode_m64() {
+    let divuw = 0b0000001_11000_11001_101_11010_0111011u32;
+    let divuw_ = from_opcode_32::<ExecutionEnvironment>(divuw);
+    type_r(&divuw_, Isa::DIVUW, 24, 25, 26);
+
+    let divw = 0b0000001_11011_11100_100_11101_0111011u32;
+    let divw_ = from_opcode_32::<ExecutionEnvironment>(divw);
+    type_r(&divw_, Isa::DIVW, 27, 28, 29);
+
+    let mulw = 0b0000001_11110_11111_000_00000_0111011u32;
+    let mulw_ = from_opcode_32::<ExecutionEnvironment>(mulw);
+    type_r(&mulw_, Isa::MULW, 30, 31, 0);
+
+    let remuw = 0b0000001_00001_00010_111_00011_0111011u32;
+    let remuw_ = from_opcode_32::<ExecutionEnvironment>(remuw);
+    type_r(&remuw_, Isa::REMUW, 1, 2, 3);
+
+    let remw = 0b0000001_00100_00101_110_00110_0111011u32;
+    let remw_ = from_opcode_32::<ExecutionEnvironment>(remw);
+    type_r(&remw_, Isa::REMW, 4, 5, 6);
 }
 
 struct ExecutionEnvironment;

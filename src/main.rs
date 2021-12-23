@@ -57,11 +57,11 @@ fn main() {
         memory: [0; 4096],
     };
 
-    eei.memory[0..4].copy_from_slice(&assembler::ADDIW(1, 0, 0).as_slice_le()); // ADDIW x1, x0, 0
-    eei.memory[4..8].copy_from_slice(&assembler::JAL(0, -4i32 as u32).as_slice_le()); // JAL x0, -4
+    eei.memory[0..4].copy_from_slice(&assembler::ADDIW(1, 0, 0).as_array_le()); // ADDIW x1, x0, 0
+    eei.memory[4..8].copy_from_slice(&assembler::JAL(0, -4i32 as u32).as_array_le()); // JAL x0, -4
 
     let conf: RVConfig = RVConfig {
-        ext: String::from(""),
+        ext: String::from("M"),
         abi_name: true,
     };
 

@@ -1,12 +1,13 @@
 use crate::rvi::*;
 
-macro_rules! impl_disassembler {
+macro_rules! impl_disassembler_i32 {
     ($name:ident, $inst:ty) => {
         impl<EEI: ExecutionEnvironmentInterface> $name<EEI> {
             pub(crate) fn disassemble_UNKNOWN(inst: $inst, _: bool) -> String {
                 format!("Unknown instruction {:?}", inst)
             }
 
+            // I32
             pub(crate) fn disassemble_ADD(inst: $inst, abi_name: bool) -> String {
                 format!("add {}", inst.disassemble_type_r(abi_name))
             }
@@ -221,5 +222,70 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     }
 }
 
-impl_disassembler!(RV32I, Instruction32);
-impl_disassembler!(RV64I, Instruction64);
+macro_rules! impl_disassembler_m32 {
+    ($name:ident, $inst:ty) => {
+        impl<EEI: ExecutionEnvironmentInterface> $name<EEI> {
+            // M32
+            pub(crate) fn disassemble_DIV(inst: $inst, abi_name: bool) -> String {
+                format!("div {}", inst.disassemble_type_r(abi_name))
+            }
+
+            pub(crate) fn disassemble_DIVU(inst: $inst, abi_name: bool) -> String {
+                format!("divu {}", inst.disassemble_type_r(abi_name))
+            }
+
+            pub(crate) fn disassemble_MUL(inst: $inst, abi_name: bool) -> String {
+                format!("mul {}", inst.disassemble_type_r(abi_name))
+            }
+
+            pub(crate) fn disassemble_MULH(inst: $inst, abi_name: bool) -> String {
+                format!("mulh {}", inst.disassemble_type_r(abi_name))
+            }
+
+            pub(crate) fn disassemble_MULHSU(inst: $inst, abi_name: bool) -> String {
+                format!("mulhsu {}", inst.disassemble_type_r(abi_name))
+            }
+
+            pub(crate) fn disassemble_MULHU(inst: $inst, abi_name: bool) -> String {
+                format!("mulhu {}", inst.disassemble_type_r(abi_name))
+            }
+
+            pub(crate) fn disassemble_REM(inst: $inst, abi_name: bool) -> String {
+                format!("rem {}", inst.disassemble_type_r(abi_name))
+            }
+
+            pub(crate) fn disassemble_REMU(inst: $inst, abi_name: bool) -> String {
+                format!("remu {}", inst.disassemble_type_r(abi_name))
+            }
+        }
+    };
+}
+
+impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
+    // M64
+    pub(crate) fn disassemble_DIVUW(inst: Instruction64, abi_name: bool) -> String {
+        format!("divuw {}", inst.disassemble_type_r(abi_name))
+    }
+
+    pub(crate) fn disassemble_DIVW(inst: Instruction64, abi_name: bool) -> String {
+        format!("divw {}", inst.disassemble_type_r(abi_name))
+    }
+
+    pub(crate) fn disassemble_MULW(inst: Instruction64, abi_name: bool) -> String {
+        format!("mulw {}", inst.disassemble_type_r(abi_name))
+    }
+
+    pub(crate) fn disassemble_REMUW(inst: Instruction64, abi_name: bool) -> String {
+        format!("remuw {}", inst.disassemble_type_r(abi_name))
+    }
+
+    pub(crate) fn disassemble_REMW(inst: Instruction64, abi_name: bool) -> String {
+        format!("remw {}", inst.disassemble_type_r(abi_name))
+    }
+}
+
+impl_disassembler_i32!(RV32I, Instruction32);
+impl_disassembler_i32!(RV64I, Instruction64);
+
+impl_disassembler_m32!(RV32I, Instruction32);
+impl_disassembler_m32!(RV64I, Instruction64);

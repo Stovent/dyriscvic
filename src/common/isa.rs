@@ -62,7 +62,23 @@ pub enum Isa {
     SRLW,
     SUBW,
 
-    _SIZE, // used internally by dyriscvic, not a real instruction
+    DIV, // M32
+    DIVU,
+    MUL,
+    MULH,
+    MULHSU,
+    MULHU,
+    REM,
+    REMU,
+
+    DIVUW, // M64
+    DIVW,
+    MULW,
+    REMUW,
+    REMW,
+
+    /// used internally by dyriscvic, not a real instruction
+    _SIZE,
 }
 
 macro_rules! declare_isa_entry {
@@ -95,6 +111,7 @@ macro_rules! declare_isa_lut {
         impl<EEI: ExecutionEnvironmentInterface> $exec<EEI> {
             /// Default empty IsaEntry for custom LUT initialization.
             pub const ISA_UNKNOWN: $entry<EEI> = $entry { isa: Isa::UNKNOWN, decoder: <$inst>::empty, execute: Self::UNKNOWN, disassemble: Self::disassemble_UNKNOWN };
+
             /// Maps an Isa to its associated decoding, executing and disassembling functions.
             pub const ISA_LUT_I32: [$entry<EEI>; Isa::XORI as usize] = [
                 $entry { isa: Isa::ADD,     decoder: <$inst>::decode_type_r, execute: Self::ADD,     disassemble: Self::disassemble_ADD },
@@ -138,13 +155,25 @@ macro_rules! declare_isa_lut {
                 $entry { isa: Isa::XOR,     decoder: <$inst>::decode_type_r, execute: Self::XOR,     disassemble: Self::disassemble_XOR },
                 $entry { isa: Isa::XORI,    decoder: <$inst>::decode_type_i, execute: Self::XORI,    disassemble: Self::disassemble_XORI },
             ];
+
+            /// Maps an Isa to its associated decoding, executing and disassembling functions.
+            pub const ISA_LUT_M32: [$entry<EEI>; Isa::REMU as usize + 1 - Isa::DIV as usize] = [
+                $entry { isa: Isa::DIV,    decoder: <$inst>::decode_type_r, execute: Self::DIV,    disassemble: Self::disassemble_DIV },
+                $entry { isa: Isa::DIVU,   decoder: <$inst>::decode_type_r, execute: Self::DIVU,   disassemble: Self::disassemble_DIVU },
+                $entry { isa: Isa::MUL,    decoder: <$inst>::decode_type_r, execute: Self::MUL,    disassemble: Self::disassemble_MUL },
+                $entry { isa: Isa::MULH,   decoder: <$inst>::decode_type_r, execute: Self::MULH,   disassemble: Self::disassemble_MULH },
+                $entry { isa: Isa::MULHSU, decoder: <$inst>::decode_type_r, execute: Self::MULHSU, disassemble: Self::disassemble_MULHSU },
+                $entry { isa: Isa::MULHU,  decoder: <$inst>::decode_type_r, execute: Self::MULHU,  disassemble: Self::disassemble_MULHU },
+                $entry { isa: Isa::REM,    decoder: <$inst>::decode_type_r, execute: Self::REM,    disassemble: Self::disassemble_REM },
+                $entry { isa: Isa::REMU,   decoder: <$inst>::decode_type_r, execute: Self::REMU,    disassemble: Self::disassemble_REMU },
+            ];
         }
     };
 }
 
 impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
     /// Maps an Isa to its associated decoding, executing and disassembling functions.
-    pub const ISA_LUT_I64: [IsaEntry64<EEI>; Isa::_SIZE as usize - Isa::ADDIW as usize] = [
+    pub const ISA_LUT_I64: [IsaEntry64<EEI>; Isa::SUBW as usize + 1 - Isa::ADDIW as usize] = [
         IsaEntry64 { isa: Isa::ADDIW,   decoder: Instruction64::decode_type_i, execute: Self::ADDIW,   disassemble: Self::disassemble_ADDIW },
         IsaEntry64 { isa: Isa::ADDW,    decoder: Instruction64::decode_type_r, execute: Self::ADDW,    disassemble: Self::disassemble_ADDW },
         IsaEntry64 { isa: Isa::LD,      decoder: Instruction64::decode_type_i, execute: Self::LD,      disassemble: Self::disassemble_LD },
@@ -157,6 +186,14 @@ impl<EEI: ExecutionEnvironmentInterface> RV64I<EEI> {
         IsaEntry64 { isa: Isa::SRLIW,   decoder: Instruction64::decode_type_i, execute: Self::SRLIW,   disassemble: Self::disassemble_SRLIW }, // type i or type r ?
         IsaEntry64 { isa: Isa::SRLW,    decoder: Instruction64::decode_type_r, execute: Self::SRLW,    disassemble: Self::disassemble_SRLW },
         IsaEntry64 { isa: Isa::SUBW,    decoder: Instruction64::decode_type_r, execute: Self::SUBW,    disassemble: Self::disassemble_SUBW },
+    ];
+
+    pub const ISA_LUT_M64: [IsaEntry64<EEI>; Isa::REMW as usize + 1 - Isa::DIVUW as usize] = [
+        IsaEntry64 { isa: Isa::DIVUW, decoder: Instruction64::decode_type_r, execute: Self::DIVUW, disassemble: Self::disassemble_DIVUW },
+        IsaEntry64 { isa: Isa::DIVW,  decoder: Instruction64::decode_type_r, execute: Self::DIVW,  disassemble: Self::disassemble_DIVW },
+        IsaEntry64 { isa: Isa::MULW,  decoder: Instruction64::decode_type_r, execute: Self::MULW,  disassemble: Self::disassemble_MULW },
+        IsaEntry64 { isa: Isa::REMUW, decoder: Instruction64::decode_type_r, execute: Self::REMUW, disassemble: Self::disassemble_REMUW },
+        IsaEntry64 { isa: Isa::REMW,  decoder: Instruction64::decode_type_r, execute: Self::REMW,  disassemble: Self::disassemble_REMW },
     ];
 }
 
